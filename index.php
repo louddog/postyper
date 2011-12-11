@@ -22,20 +22,6 @@ class Postyper {
 		add_action('admin_menu', array(&$this, 'admin_menu'));
 		
 		include POSTYPER_PATH.'/postype.php';
-		
-		new Postype(array(
-			'slug' => 'employee',
-			'archive' => 'employees',
-			'singular' => "Employee",
-			'plural' => "Employees",
-		));
-		
-		new Postype(array(
-			'slug' => 'product',
-			'archive' => 'products',
-			'singular' => "Products",
-			'plural' => "Products",
-		));
 	}
 	
 	function activate() {
@@ -69,3 +55,17 @@ class Postyper {
 		include POSTYPER_PATH.'/settings_page.php';
 	}
 }
+
+new Postype(array(
+	'slug' => 'employee',
+	'archive' => 'employees',
+	'singular' => "Employee",
+	'plural' => "Employees",
+));
+
+new Postype(array(
+	'slug' => 'product',
+	'archive' => 'products',
+	'singular' => "Products",
+	'plural' => "Products",
+));
