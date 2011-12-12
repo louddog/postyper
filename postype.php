@@ -7,6 +7,8 @@ class Postype {
 	var $plural = "Items";
 	var $menu_position = 20;
 	
+	var $meta = array();
+	
 	function __construct($options) {
 		foreach ($options as $option => $value) {
 			if (property_exists($this, $option)) {
@@ -15,6 +17,7 @@ class Postype {
 		}
 		
 		add_action('init', array(&$this, 'register_post_type'));
+		add_action('admin_init', array(&$this, 'meta_boxes'));
 	}
 	
 	function register_post_type() {
@@ -42,5 +45,46 @@ class Postype {
 				'with_front' => false,
 			),
 		));
+	}
+	
+	function meta_boxes() {
+		$contexts = array();
+		foreach ($this->meta as $name => $field) {
+			$context = isset($field['context']) ? $field['context'] : 'normal';
+			$contexts[$context][$name] = $field;
+		}
+		
+		foreach ($contexts as $context => $fields) {
+			add_meta_box(
+				$this->slug."-options-$context",
+				_x("$this->singular Options", 'postyper options box title'),
+				array($this, 'meta_box'),
+				$this->slug,
+				$context,
+				$context == 'normal' ? 'high' : 'core',
+				$fields
+			);
+		}
+	}
+	
+	function meta_box($post, $metabox) {
+		$fields = $metabox['args'];
+		$db_meta = $this->get_meta($post->ID);
+		wp_nonce_field(plugin_basename(__FILE__), 'postyper_nonce');
+		include POSTYPER_PATH.'/meta_box.php';
+	}
+	
+	function get_meta($post_id) {
+		if (is_object($post_id) && isset($post->ID)) $post_id = $post->ID;
+		
+		$meta = array();
+		
+		foreach (get_post_custom($post_id) as $key => $value) {
+			if (strpos($key, 'postyper_') !== 0) continue;
+			$key = substr($key, strlen('postyper_'));
+			$tmp = unserialize($value[0]);
+			$value = $tmp ? $tmp : $value[0];
+			$meta[$key] = $value;
+		}
 	}
 }
