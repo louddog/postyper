@@ -143,7 +143,7 @@ class Postype {
 				type="text"
 				name="<?php echo $name; ?>[date]"
 				id="<?php echo $name.'_date'; ?>"
-				value="<?php if ($value) echo date('n/j/Y', $value); ?>"
+				value="<?php if ($value) echo esc_attr(date('n/j/Y', $value)); ?>"
 				placeholder="mm/dd/yyyy"
 			/>
 			<input
@@ -151,7 +151,7 @@ class Postype {
 				type="text"
 				name="<?php echo $name; ?>[time]"
 				id="<?php echo $name.'_time'; ?>"
-				value="<?php if ($value) echo date('g:ia', $value); ?>"
+				value="<?php if ($value) echo esc_attr(date('g:ia', $value)); ?>"
 				placeholder="hh:mm am"
 			/>
 
@@ -178,8 +178,9 @@ class Postype {
 				<option value=""></option>
 				<?php foreach ($field['options'] as $val => $text) { ?>
 					<option
-						value="<?php echo $val; ?>"
-						<?php if ($val == $value) echo 'selected'; ?>>
+						value="<?php echo esc_attr($val); ?>"
+						<?php if ($val == $value) echo 'selected'; ?>
+					>
 						<?php echo $text; ?>
 					</option>
 				<?php } ?>
@@ -201,10 +202,10 @@ class Postype {
 					type="radio"
 					class="radio"
 					name="<?php echo $name; ?>"
-					id="<?php echo $name.'_'.$val; ?>"
-					value="<?php echo htmlentities($val); ?>"
+					id="<?php echo esc_attr($name.'_'.$val); ?>"
+					value="<?php echo esc_attr($val); ?>"
 				/>
-				<label for="<?php echo $name.'_'.$val; ?>">
+				<label for="<?php echo esc_attr($name.'_'.$val); ?>">
 					<?php echo $text; ?>
 				</label>		
 			<?php } ?>
@@ -216,7 +217,7 @@ class Postype {
 			<textarea
 				name="<?php echo $name; ?>"
 				id="<?php echo $name; ?>"
-				 cols="60" rows="4"
+				cols="60" rows="4"
 			><?php echo $value; ?></textarea>
 			
 			<?php echo $desc; ?>
