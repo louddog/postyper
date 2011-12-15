@@ -61,11 +61,70 @@ new Postype(array(
 	'archive' => 'employees',
 	'singular' => "Employee",
 	'plural' => "Employees",
-));
-
-new Postype(array(
-	'slug' => 'product',
-	'archive' => 'products',
-	'singular' => "Products",
-	'plural' => "Products",
+	'meta' => array(
+		'job_title' => array(
+			'name' => 'job_title',
+			'type' => 'text',
+			'label' => "Job Title",
+			'desc' => "This job title for this employee",
+		),
+		'age' => array(
+			'name' => 'age',
+			'type' => 'int',
+			'label' => "Age",
+			'desc' => "Well, you aren't supposed to ask.",
+		),
+		'hire_date' => array(
+			'name' => 'hire_date',
+			'type' => 'date-time',
+			'label' => "Hire Date",
+			'desc' => "The date the employee was hired.",
+		),
+		'salary' => array(
+			'name' => 'salary',
+			'type' => 'money',
+			'label' => "Salary",
+			'desc' => "The employee's annual salary.",
+		),
+		'department' => array(
+			'name' => 'department',
+			'type' => 'radio',
+			'label' => "Department",
+			'desc' => "The department the employee works in.",
+			'options' => array(
+				'engineering' => "Engineering",
+				'design' => "Design",
+				'human resources' => "Human Resources",
+			),
+		),
+		'favorite_color' => array(
+			'name' => 'favorite_color',
+			'type' => 'select',
+			'label' => "Favorite Color",
+			'desc' => "What! Is your favorite color?",
+			'options' => array(
+				'red' => "Red",
+				'orange' => "Orange",
+				'yellow' => "Yellow",
+				'green' => "Green",
+				'blue' => "Blue",
+				'purple' => "Purple",
+				'white' => "White",
+				'black' => "Black",
+				'brown' => "Brown",
+			),
+		),
+		'retired' => array(
+			'name' => 'retired',
+			'type' => 'boolean',
+			'label' => "Retired",
+			'desc' => "This employee has retired.",
+		),
+		'bio' => array(
+			'name' => 'bio',
+			'type' => 'textarea',
+			'label' => "Bio",
+			'desc' => "Provide a short bio for this employee.",
+		),
+	),
 ));

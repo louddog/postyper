@@ -71,7 +71,172 @@ class Postype {
 		$fields = $metabox['args'];
 		$db_meta = $this->get_meta($post->ID);
 		wp_nonce_field(plugin_basename(__FILE__), 'postyper_nonce');
-		include POSTYPER_PATH.'/meta_box.php';
+		?>
+		
+		<style>
+			.postyper_fields textarea {
+				width: 98%;
+			}
+		</style>
+		
+		<fieldset class="postyper_fields">
+			<table class="form-table">
+				<?php foreach($fields as $field) { ?>
+					<?php
+						$name = "postyper_".$field['name'];
+						$value = false;
+						if (isset($db_meta[$field['name']])) $value = $db_meta[$field['name']];
+						else if (isset($field['default']) && $field['default']) $value = $field['default'];
+					?>
+
+					<tr>
+						<th>
+							<label for="<?php echo $name; ?>">
+								<?php echo $field['label']; ?>
+							</label>
+						</th>
+						<td class="input">
+							<?php $this->output_field($field, $name, $value); ?>
+						</td>
+					</tr>
+				<?php } ?>
+			</table>
+		</fieldset>
+		
+		<?php
+	}
+	
+	function output_field($field, $name, $value) {
+		
+		$desc = isset($field['desc']) && !empty($field['desc'])
+			? '<br /><span class="description">'.$field['desc'].'</span>'
+			: '';
+		
+		if ($field['type'] == 'text') { ?>
+			
+			<input
+				class="text"
+				type="text"
+				name="<?php echo $name; ?>"
+				id="<?php echo $name; ?>"
+				value="<?php echo esc_attr($value); ?>"
+			/>
+			
+			<?php echo $desc; ?>
+			
+		<?php } else if ($field['type'] == 'int') { ?>
+			
+			<input
+				class="int"
+				type="text"
+				name="<?php echo $name; ?>"
+				id="<?php echo $name; ?>"
+				value="<?php echo esc_attr($value); ?>"
+			/>
+			
+			<?php echo $desc; ?>
+			
+		<?php } else if ($field['type'] == 'date-time') { ?>
+			
+			<input
+				class="date"
+				type="text"
+				name="<?php echo $name; ?>[date]"
+				id="<?php echo $name.'_date'; ?>"
+				value="<?php if ($value) echo date('n/j/Y', $value); ?>"
+				placeholder="mm/dd/yyyy"
+			/>
+			<input
+				class="time"
+				type="text"
+				name="<?php echo $name; ?>[time]"
+				id="<?php echo $name.'_time'; ?>"
+				value="<?php if ($value) echo date('g:ia', $value); ?>"
+				placeholder="hh:mm am"
+			/>
+
+			<?php echo $desc; ?>
+			
+		<?php } else if ($field['type'] == 'money') { ?>
+			
+			<input
+				class="money"
+				type="text"
+				name="<?php echo $name; ?>"
+				id="<?php echo $name; ?>"
+				value="<?php echo esc_attr($value); ?>"
+			/>
+
+			<?php echo $desc; ?>
+			
+		<?php } else if ($field['type'] == 'select') { ?>
+			
+			<select
+				name="<?php echo $name; ?>"
+				id="<?php echo $name; ?>"
+			>
+				<option value=""></option>
+				<?php foreach ($field['options'] as $val => $text) { ?>
+					<option
+						value="<?php echo $val; ?>"
+						<?php if ($val == $value) echo 'selected'; ?>>
+						<?php echo $text; ?>
+					</option>
+				<?php } ?>
+			</select>
+			
+			<?php echo $desc; ?>
+			
+		<?php } else if ($field['type'] == 'radio') { ?>
+			
+			<?php $first = true; ?>
+			
+			<?php foreach ($field['options'] as $val => $text) { ?>
+				<?php
+					if ($first) $first = false;
+					else echo "<br />";
+				?>
+				
+				<input
+					type="radio"
+					class="radio"
+					name="<?php echo $name; ?>"
+					id="<?php echo $name.'_'.$val; ?>"
+					value="<?php echo htmlentities($val); ?>"
+				/>
+				<label for="<?php echo $name.'_'.$val; ?>">
+					<?php echo $text; ?>
+				</label>		
+			<?php } ?>
+						
+			<?php echo $desc; ?>
+			
+		<?php } else if ($field['type'] == 'textarea') { ?>
+			
+			<textarea
+				name="<?php echo $name; ?>"
+				id="<?php echo $name; ?>"
+				 cols="60" rows="4"
+			><?php echo $value; ?></textarea>
+			
+			<?php echo $desc; ?>
+			
+		<?php } else if ($field['type'] == 'boolean') { ?>
+			
+			<input
+				type="checkbox"
+				name="<?php echo $name; ?>"
+				id="<?php echo $name; ?>"
+				<?php if ($value) echo 'checked'; ?>
+			/>		
+
+			<?php if (isset($field['desc']) && !empty($field['desc'])) { ?>
+				<label for="<?php echo $name; ?>">
+					<?php echo $field['desc']; ?>
+				</label>
+			<?php } ?>
+
+		<?php }
 	}
 	
 	function get_meta($post_id) {
