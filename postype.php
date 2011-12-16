@@ -6,20 +6,21 @@ class Postype {
 	var $singular = "Item";
 	var $plural = "Items";
 	var $menu_position = 20;
-	
+
 	var $meta = array();
-	
+
 	function __construct($options) {
 		foreach ($options as $option => $value) {
 			if (property_exists($this, $option)) {
 				$this->$option = $value;
 			}
 		}
-		
+
 		add_action('init', array(&$this, 'register_post_type'));
 		add_action('admin_init', array(&$this, 'meta_boxes'));
+		add_action('save_post', array(&$this, 'save_post'));
 	}
-	
+
 	function register_post_type() {
 		register_post_type($this->slug, array(
 			'labels' => array(
@@ -46,14 +47,14 @@ class Postype {
 			),
 		));
 	}
-	
+
 	function meta_boxes() {
 		$contexts = array();
 		foreach ($this->meta as $name => $field) {
 			$context = isset($field['context']) ? $field['context'] : 'normal';
 			$contexts[$context][$name] = $field;
 		}
-		
+
 		foreach ($contexts as $context => $fields) {
 			add_meta_box(
 				$this->slug."-options-$context",
@@ -66,101 +67,125 @@ class Postype {
 			);
 		}
 	}
-	
-	function meta_box($post, $metabox) {
-		$fields = $metabox['args'];
-		$db_meta = $this->get_meta($post->ID);
-		wp_nonce_field(plugin_basename(__FILE__), 'postyper_nonce');
-		?>
-		
-		<style>
-			.postyper_fields textarea {
-				width: 98%;
-			}
-		</style>
-		
-		<fieldset class="postyper_fields">
-			<table class="form-table">
-				<?php foreach($fields as $field) { ?>
-					<?php
-						$name = "postyper_".$field['name'];
-						$value = false;
-						if (isset($db_meta[$field['name']])) $value = $db_meta[$field['name']];
-						else if (isset($field['default']) && $field['default']) $value = $field['default'];
-					?>
 
-					<tr>
-						<th>
-							<label for="<?php echo $name; ?>">
-								<?php echo $field['label']; ?>
-							</label>
-						</th>
-						<td class="input">
-							<?php $this->output_field($field, $name, $value); ?>
-						</td>
-					</tr>
-				<?php } ?>
-			</table>
-		</fieldset>
+	function meta_box($post, $metabox) { ?>
+
+		<table class="form-table">
+			<?php foreach($metabox['args'] as $field) { ?>
+				<tr>
+					<th>
+						<label for="postyper_<?php echo $field['name']; ?>">
+							<?php echo $field['label']; ?>
+						</label>
+					</th>
+					<td class="input">
+						<?php $this->output_field($post, $field); ?>
+					</td>
+				</tr>
+			<?php } ?>
+		</table>
 		
-		<?php
-	}
-	
-	function output_field($field, $name, $value) {
+		<?php wp_nonce_field(plugin_basename(__FILE__), 'postyper_nonce'); ?>
+
+	<?php }
+
+	function output_field($post, $field) {
+		$name = "postyper_".$field['name'];
+		
+		$value = get_post_meta($post->ID, $name, true);
 		
 		$desc = isset($field['desc']) && !empty($field['desc'])
 			? '<br /><span class="description">'.$field['desc'].'</span>'
 			: '';
-		
+
 		if ($field['type'] == 'text') { ?>
-			
+
 			<input
-				class="text"
 				type="text"
 				name="<?php echo $name; ?>"
 				id="<?php echo $name; ?>"
 				value="<?php echo esc_attr($value); ?>"
 			/>
-			
+
 			<?php echo $desc; ?>
-			
+
 		<?php } else if ($field['type'] == 'int') { ?>
-			
+
 			<input
-				class="int"
 				type="text"
 				name="<?php echo $name; ?>"
 				id="<?php echo $name; ?>"
 				value="<?php echo esc_attr($value); ?>"
+				style="width: 50px;"
 			/>
-			
+
 			<?php echo $desc; ?>
-			
-		<?php } else if ($field['type'] == 'date-time') { ?>
-			
+
+		<?php } else if ($field['type'] == 'date') { ?>
+
 			<input
-				class="date"
 				type="text"
-				name="<?php echo $name; ?>[date]"
-				id="<?php echo $name.'_date'; ?>"
-				value="<?php if ($value) echo esc_attr(date('n/j/Y', $value)); ?>"
+				name="<?php echo $name; ?>"
+				id="<?php echo $name; ?>"
+				value="<?php if (is_numeric($value)) echo esc_attr(date('n/j/Y', $value)); ?>"
 				placeholder="mm/dd/yyyy"
 			/>
+
+			<?php echo $desc; ?>
+
+		<?php } else if ($field['type'] == 'time') { ?>
+
 			<input
-				class="time"
 				type="text"
-				name="<?php echo $name; ?>[time]"
-				id="<?php echo $name.'_time'; ?>"
-				value="<?php if ($value) echo esc_attr(date('g:ia', $value)); ?>"
+				name="<?php echo $name; ?>"
+				id="<?php echo $name; ?>"
+				value="<?php if (is_numeric($value)) echo esc_attr(date('g:ia', $value)); ?>"
 				placeholder="hh:mm am"
 			/>
 
 			<?php echo $desc; ?>
-			
-		<?php } else if ($field['type'] == 'money') { ?>
+
+		<?php } else if ($field['type'] == 'date-time') { ?>
+
+			<input
+				type="text"
+				name="<?php echo $name; ?>[date]"
+				id="<?php echo $name.'__date'; ?>"
+				value="<?php if (is_numeric($value)) echo esc_attr(date('n/j/Y', $value)); ?>"
+				placeholder="mm/dd/yyyy"
+			/>
+			<input
+				type="text"
+				name="<?php echo $name; ?>[time]"
+				id="<?php echo $name.'__time'; ?>"
+				value="<?php if (is_numeric($value)) echo esc_attr(date('g:ia', $value)); ?>"
+				placeholder="hh:mm am"
+			/>
+
+			<?php echo $desc; ?>
+
+		<?php } else if ($field['type'] == 'time-range') { ?>
 			
 			<input
-				class="money"
+				type="text"
+				name="<?php echo $name; ?>[starts]"
+				id="<?php echo $name.'__starts'; ?>"
+				value="<?php if (is_numeric($value['starts'])) echo esc_attr(date('g:ia', $value['starts'])); ?>"
+				placeholder="hh:mm am"
+			/>
+			<input
+				type="text"
+				name="<?php echo $name; ?>[ends]"
+				id="<?php echo $name.'__ends'; ?>"
+				value="<?php if (is_numeric($value['ends'])) echo esc_attr(date('g:ia', $value['ends'])); ?>"
+				placeholder="hh:mm am"
+			/>
+
+			<?php echo $desc; ?>
+
+		<?php } else if ($field['type'] == 'money') { ?>
+
+			<input
 				type="text"
 				name="<?php echo $name; ?>"
 				id="<?php echo $name; ?>"
@@ -168,9 +193,9 @@ class Postype {
 			/>
 
 			<?php echo $desc; ?>
-			
+
 		<?php } else if ($field['type'] == 'select') { ?>
-			
+
 			<select
 				name="<?php echo $name; ?>"
 				id="<?php echo $name; ?>"
@@ -187,49 +212,50 @@ class Postype {
 			</select>
 			
 			<?php echo $desc; ?>
-			
+
 		<?php } else if ($field['type'] == 'radio') { ?>
-			
+
 			<?php $first = true; ?>
-			
+
 			<?php foreach ($field['options'] as $val => $text) { ?>
 				<?php
 					if ($first) $first = false;
 					else echo "<br />";
 				?>
-				
+
 				<input
 					type="radio"
-					class="radio"
 					name="<?php echo $name; ?>"
 					id="<?php echo esc_attr($name.'_'.$val); ?>"
 					value="<?php echo esc_attr($val); ?>"
+					<?php if ($val == $value) echo "checked"; ?>
 				/>
 				<label for="<?php echo esc_attr($name.'_'.$val); ?>">
 					<?php echo $text; ?>
-				</label>		
+				</label>
 			<?php } ?>
-						
+			
 			<?php echo $desc; ?>
-			
+
 		<?php } else if ($field['type'] == 'textarea') { ?>
-			
+
 			<textarea
 				name="<?php echo $name; ?>"
 				id="<?php echo $name; ?>"
-				cols="60" rows="4"
+				rows="4"
+				style="width: 98%;"
 			><?php echo $value; ?></textarea>
-			
+
 			<?php echo $desc; ?>
-			
-		<?php } else if ($field['type'] == 'boolean') { ?>
-			
+
+		<?php } else if ($field['type'] == 'checkbox') { ?>
+
 			<input
 				type="checkbox"
 				name="<?php echo $name; ?>"
 				id="<?php echo $name; ?>"
 				<?php if ($value) echo 'checked'; ?>
-			/>		
+			/>
 
 			<?php if (isset($field['desc']) && !empty($field['desc'])) { ?>
 				<label for="<?php echo $name; ?>">
@@ -240,17 +266,64 @@ class Postype {
 		<?php }
 	}
 	
-	function get_meta($post_id) {
-		if (is_object($post_id) && isset($post->ID)) $post_id = $post->ID;
-		
-		$meta = array();
-		
-		foreach (get_post_custom($post_id) as $key => $value) {
-			if (strpos($key, 'postyper_') !== 0) continue;
-			$key = substr($key, strlen('postyper_'));
-			$tmp = unserialize($value[0]);
-			$value = $tmp ? $tmp : $value[0];
-			$meta[$key] = $value;
-		}
+	function save_post($post_id) {
+		if (!wp_verify_nonce($_POST['postyper_nonce'], plugin_basename(__FILE__))) return $post_id;
+	    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return $post_id;
+		if ($_POST['post_type'] != $this->slug) return $post_id;
+		if (!current_user_can('edit_post', $post_id)) return $post_id;
+
+	    foreach ($this->meta as $field) {
+			$name = 'postyper_'.$field['name'];
+			
+			switch ($field['type']) {
+				case 'checkbox':
+					$new = isset($_POST[$name]);
+					break;
+					
+				case 'date':
+					$new = strtotime($_POST[$name]);
+					if ($new) {
+						$d = getdate($new);
+						$new = mktime(0, 0, 0, $d['mon'], $d['mday'], $d['year']);
+					}
+					break;
+					
+				case 'time':
+					$new = strtotime($_POST[$name]);
+					break;
+					
+				case 'date-time':
+					$date = strtotime($_POST[$name]['date']);
+					$time = strtotime($_POST[$name]['time']);
+					$new = 0;
+					if ($date && $time) {
+						$d = getdate($date);
+						$t = getdate($time);
+						$new = mktime($t['hours'], $t['minutes'], $t['seconds'], $d['mon'], $d['mday'], $d['year']);
+					}
+					break;
+					
+				case 'time-range':
+					$new = array(
+						'starts' => strtotime($_POST[$name]['starts']),
+						'ends' => strtotime($_POST[$name]['ends']),
+					);
+					break;
+					
+				case 'int':
+					$new = intval($_POST[$name]);
+					break;
+					
+				case 'money':
+					$new = floatval($_POST[$name]);
+					break;
+					
+				default:
+					$new = isset($_POST[$name]) ? trim($_POST[$name]) : '';
+			}
+
+	        $old = get_post_meta($post_id, $name, true);
+	        if ($new != $old) update_post_meta($post_id, $name, $new);
+	    }
 	}
 }
