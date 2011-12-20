@@ -1,5 +1,8 @@
 jQuery(function($) {
-	$('.postyper_date').datepicker();
+	$('.postyper_date').datepicker({
+		changeMonth: true,
+		changeYear: true
+	});
 	
 	$('.postyper_slider').each(function() {
 		var rel = $(this).attr('rel');
