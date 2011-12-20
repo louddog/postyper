@@ -17,6 +17,7 @@ class Postype {
 		}
 
 		add_action('init', array(&$this, 'register_post_type'));
+		add_action('admin_enqueue_scripts', array(&$this, 'includes'));
 		add_action('admin_init', array(&$this, 'meta_boxes'));
 		add_action('save_post', array(&$this, 'save_post'));
 	}
@@ -47,6 +48,14 @@ class Postype {
 			),
 		));
 	}
+	
+	function includes() {
+		wp_register_script('postyper_meta', POSTYPER_URL.'js/meta.js', array('jquery-ui-datepicker', 'jquery-ui-slider'), '0.1', true);
+		wp_enqueue_script('postyper_meta');
+		
+		wp_register_style('postyper_meta', POSTYPER_URL.'css/meta.css', false, '0.1');
+		wp_enqueue_style('postyper_meta');
+	}
 
 	function meta_boxes() {
 		$contexts = array();
@@ -71,7 +80,13 @@ class Postype {
 	function meta_box($post, $metabox) { ?>
 
 		<table class="form-table">
-			<?php foreach($metabox['args'] as $field) { ?>
+			<?php foreach($metabox['args'] as $field) {
+				$name = "postyper_".$field['name'];
+				$value = get_post_meta($post->ID, $name, true);
+				$desc = isset($field['desc']) && !empty($field['desc'])
+					? '<br /><span class="description">'.$field['desc'].'</span>'
+					: '';
+				?>
 				<tr>
 					<th>
 						<label for="postyper_<?php echo $field['name']; ?>">
@@ -79,7 +94,7 @@ class Postype {
 						</label>
 					</th>
 					<td class="input">
-						<?php $this->output_field($post, $field); ?>
+						<?php include POSTYPER_PATH.'/inputs.php'; ?>
 					</td>
 				</tr>
 			<?php } ?>
@@ -88,185 +103,9 @@ class Postype {
 		<?php wp_nonce_field(plugin_basename(__FILE__), 'postyper_nonce'); ?>
 
 	<?php }
-
-	function output_field($post, $field) {
-		$name = "postyper_".$field['name'];
-		
-		$value = get_post_meta($post->ID, $name, true);
-		
-		$desc = isset($field['desc']) && !empty($field['desc'])
-			? '<br /><span class="description">'.$field['desc'].'</span>'
-			: '';
-
-		if ($field['type'] == 'text') { ?>
-
-			<input
-				type="text"
-				name="<?php echo $name; ?>"
-				id="<?php echo $name; ?>"
-				value="<?php echo esc_attr($value); ?>"
-			/>
-
-			<?php echo $desc; ?>
-
-		<?php } else if ($field['type'] == 'int') { ?>
-
-			<input
-				type="text"
-				name="<?php echo $name; ?>"
-				id="<?php echo $name; ?>"
-				value="<?php echo esc_attr($value); ?>"
-				style="width: 50px;"
-			/>
-
-			<?php echo $desc; ?>
-
-		<?php } else if ($field['type'] == 'date') { ?>
-
-			<input
-				type="text"
-				name="<?php echo $name; ?>"
-				id="<?php echo $name; ?>"
-				value="<?php if (is_numeric($value)) echo esc_attr(date('n/j/Y', $value)); ?>"
-				placeholder="mm/dd/yyyy"
-			/>
-
-			<?php echo $desc; ?>
-
-		<?php } else if ($field['type'] == 'time') { ?>
-
-			<input
-				type="text"
-				name="<?php echo $name; ?>"
-				id="<?php echo $name; ?>"
-				value="<?php if (is_numeric($value)) echo esc_attr(date('g:ia', $value)); ?>"
-				placeholder="hh:mm am"
-			/>
-
-			<?php echo $desc; ?>
-
-		<?php } else if ($field['type'] == 'date-time') { ?>
-
-			<input
-				type="text"
-				name="<?php echo $name; ?>[date]"
-				id="<?php echo $name.'__date'; ?>"
-				value="<?php if (is_numeric($value)) echo esc_attr(date('n/j/Y', $value)); ?>"
-				placeholder="mm/dd/yyyy"
-			/>
-			<input
-				type="text"
-				name="<?php echo $name; ?>[time]"
-				id="<?php echo $name.'__time'; ?>"
-				value="<?php if (is_numeric($value)) echo esc_attr(date('g:ia', $value)); ?>"
-				placeholder="hh:mm am"
-			/>
-
-			<?php echo $desc; ?>
-
-		<?php } else if ($field['type'] == 'time-range') { ?>
-			
-			<input
-				type="text"
-				name="<?php echo $name; ?>[starts]"
-				id="<?php echo $name.'__starts'; ?>"
-				value="<?php if (is_numeric($value['starts'])) echo esc_attr(date('g:ia', $value['starts'])); ?>"
-				placeholder="hh:mm am"
-			/>
-			<input
-				type="text"
-				name="<?php echo $name; ?>[ends]"
-				id="<?php echo $name.'__ends'; ?>"
-				value="<?php if (is_numeric($value['ends'])) echo esc_attr(date('g:ia', $value['ends'])); ?>"
-				placeholder="hh:mm am"
-			/>
-
-			<?php echo $desc; ?>
-
-		<?php } else if ($field['type'] == 'money') { ?>
-
-			<input
-				type="text"
-				name="<?php echo $name; ?>"
-				id="<?php echo $name; ?>"
-				value="<?php echo esc_attr($value); ?>"
-			/>
-
-			<?php echo $desc; ?>
-
-		<?php } else if ($field['type'] == 'select') { ?>
-
-			<select
-				name="<?php echo $name; ?>"
-				id="<?php echo $name; ?>"
-			>
-				<option value=""></option>
-				<?php foreach ($field['options'] as $val => $text) { ?>
-					<option
-						value="<?php echo esc_attr($val); ?>"
-						<?php if ($val == $value) echo 'selected'; ?>
-					>
-						<?php echo $text; ?>
-					</option>
-				<?php } ?>
-			</select>
-			
-			<?php echo $desc; ?>
-
-		<?php } else if ($field['type'] == 'radio') { ?>
-
-			<?php $first = true; ?>
-
-			<?php foreach ($field['options'] as $val => $text) { ?>
-				<?php
-					if ($first) $first = false;
-					else echo "<br />";
-				?>
-
-				<input
-					type="radio"
-					name="<?php echo $name; ?>"
-					id="<?php echo esc_attr($name.'_'.$val); ?>"
-					value="<?php echo esc_attr($val); ?>"
-					<?php if ($val == $value) echo "checked"; ?>
-				/>
-				<label for="<?php echo esc_attr($name.'_'.$val); ?>">
-					<?php echo $text; ?>
-				</label>
-			<?php } ?>
-			
-			<?php echo $desc; ?>
-
-		<?php } else if ($field['type'] == 'textarea') { ?>
-
-			<textarea
-				name="<?php echo $name; ?>"
-				id="<?php echo $name; ?>"
-				rows="4"
-				style="width: 98%;"
-			><?php echo $value; ?></textarea>
-
-			<?php echo $desc; ?>
-
-		<?php } else if ($field['type'] == 'checkbox') { ?>
-
-			<input
-				type="checkbox"
-				name="<?php echo $name; ?>"
-				id="<?php echo $name; ?>"
-				<?php if ($value) echo 'checked'; ?>
-			/>
-
-			<?php if (isset($field['desc']) && !empty($field['desc'])) { ?>
-				<label for="<?php echo $name; ?>">
-					<?php echo $field['desc']; ?>
-				</label>
-			<?php } ?>
-
-		<?php }
-	}
 	
 	function save_post($post_id) {
+		if (!isset($_POST['postyper_nonce'])) return $post_id;
 		if (!wp_verify_nonce($_POST['postyper_nonce'], plugin_basename(__FILE__))) return $post_id;
 	    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return $post_id;
 		if ($_POST['post_type'] != $this->slug) return $post_id;

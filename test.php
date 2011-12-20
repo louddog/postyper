@@ -88,5 +88,21 @@ new Postype(array(
 			'label' => "Bio",
 			'desc' => "Provide a short bio for this employee.",
 		),
+		array(
+			'name' => 'rank',
+			'type' => 'slider',
+			'label' => "Rank",
+			'desc' => "The rank of the employee (1 to 10).",
+			'min' => 1,
+			'max' => 10,
+		),
+		array(
+			'name' => 'days_per_week',
+			'type' => 'range',
+			'label' => "Days per week",
+			'desc' => "Number of days worked per week (1 to 7).",
+			'min' => 1,
+			'max' => 7,
+		),
 	),
 ));
