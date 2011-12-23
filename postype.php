@@ -151,18 +151,18 @@ class Postype {
 		
 		foreach ($this->fields as $ndx => $field) {
 			$data = array(
-				'name' => $field['name'],
-				'type' => $field['type'],
-				'label' => $field['label'],
-				'description' => $field['description'],
+				'name' => $field->name,
+				'type' => $field->type,
+				'label' => $field->label,
+				'description' => $field->description,
 			);
 			
-			if ($field['id']) {
-				$wpdb->update($wpdb->postype_fields, $data, array('postype_field_id' => $field['id']));
+			if ($field->postype_field_id) {
+				$wpdb->update($wpdb->postype_fields, $data, array('postype_field_id' => $field->postype_field_id));
 			} else {
 				$data['postype_id'] = $this->id;
-				$wpdb->insert($wpdb->postypes_fields, $data);
-				$this->fields[$ndx]['id'] = $wpdb->insert_id;
+				$wpdb->insert($wpdb->postype_fields, $data);
+				$this->fields[$ndx]->postype_field_id = $wpdb->insert_id;
 			}
 		}
 	}

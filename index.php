@@ -91,6 +91,15 @@ class Postyper {
 			'postyper',
 			array($this, 'settings')
 		);
+
+		add_submenu_page(
+			'postyper',
+			"Postyper | New Post Type",
+			"New Post Type",
+			'manage_options',
+			'postyper-new',
+			array($this, 'postype_settings')
+		);
 		
 		foreach ($this->postypes as $postype) {
 			add_submenu_page(

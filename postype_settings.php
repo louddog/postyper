@@ -2,22 +2,25 @@
 	$postype = new Postype(str_replace('postyper_', '', $_GET['page']));
 	
 	if (
-		isset($_POST['postyper_meta_nonce']) &&
-		wp_verify_nonce($_POST['postyper_meta_nonce'], plugin_basename(__FILE__))
+		isset($_POST['postyper_save_nonce']) &&
+		wp_verify_nonce($_POST['postyper_save_nonce'], plugin_basename(__FILE__))
 	) {
-		$postype->slug = trim($_POST['slug']);
-		$postype->archive = trim($_POST['arvhice']);
-		$postype->singular = trim($_POST['singular']);
-		$postype->plural = trim($_POST['plural']);
+		$post = stripslashes_deep($_POST);	
+		$postype->slug = trim($post['slug']);
+		$postype->archive = trim($post['archive']);
+		$postype->singular = trim($post['singular']);
+		$postype->plural = trim($post['plural']);
 		
-		if (isset($_POST['field_id'])) {
-			foreach ($_POST['field_id'] as $ndx => $id) {
-				$postype->fields[] = array(
-					'id' => $id == 'new' ? false : $id,
-					'label' => trim($_POST['field_label'][$ndx]),
-					'name' => trim($_POST['field_name'][$ndx]),
-					'type' => $_POST['field_type'][$ndx],
-					'description' => trim($_POST['field_description'][$ndx]),
+		$postype->fields = array();
+		
+		if (isset($post['field_id'])) {
+			foreach ($post['field_id'] as $ndx => $id) {
+				$postype->fields[] = (object) array(
+					'postype_field_id' => $id == 'new' ? false : $id,
+					'label' => trim($post['field_label'][$ndx]),
+					'name' => trim($post['field_name'][$ndx]),
+					'type' => $post['field_type'][$ndx],
+					'description' => trim($post['field_description'][$ndx]),
 				);
 			}
 		}
@@ -72,7 +75,7 @@
 				<?php foreach ($postype->fields as $field) { ?>
 					<tr>
 						<td class="label">
-							<input type="hidden" name="field_id[]" value="<?php echo $field->id; ?>" />
+							<input type="hidden" name="field_id[]" value="<?php echo $field->postype_field_id; ?>" />
 							<input type="text" name="field_label[]" value="<?php echo esc_attr($field->label); ?>" />
 						</td>
 
@@ -81,7 +84,7 @@
 						</td>
 
 						<td class="type">
-							<select name="field_type" id="postyer_type">
+							<select name="field_type[]" id="postyer_type">
 								<?php foreach (Postyper::$types as $type) { ?>
 									<option value="<?php echo esc_attr($type); ?>" <?php if ($type == $field->type) echo 'selected'; ?>>
 										<?php echo $type; ?>
@@ -98,5 +101,7 @@
 			</table>
 		
 		<?php } ?>
+		
+		<p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>
 	</form>
 </div>
