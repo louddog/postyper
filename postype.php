@@ -1,6 +1,8 @@
 <?php
 
 class Postype {
+	protected static $postypes = array();
+	
 	var $id = 0;
 	var $slug = 'postype';
 	var $archive = 'postypes';
@@ -40,6 +42,7 @@ class Postype {
 		}
 		
 		if ($register) {
+			self::$postypes[$postype->slug] = $this;
 			add_action('init', array(&$this, 'register'));
 			add_action('admin_enqueue_scripts', array(&$this, 'includes'));
 			add_action('admin_init', array(&$this, 'meta_boxes'));
@@ -232,4 +235,24 @@ class Postype {
 	        if ($new != $old) update_post_meta($post_id, "postyper_$field->name", $new);
 	    }
 	}
+	
+	public function options($post, $name) {
+		$type = get_post_type($post);
+		$name = str_replace('postyper_', '', $name);
+		foreach (self::$postypes[$type]->fields as $field) {
+			if ($field->name == $name) return $field->options;
+		}
+		return false;
+	}
+	
+	public function label($post, $name, $alt = 'n/a') {
+		$options = self::options($post, $name);
+		$key = get_post_meta($post->ID, $name, true);
+		return $options && isset($options[$key]) ? $options[$key] : $alt;
+	}
+	
+	public function debug() {
+		echo "<pre>".print_r(self::$postypes, true)."</pre>";
+	}
+	
 }
