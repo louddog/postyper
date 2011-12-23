@@ -1,6 +1,6 @@
-<?php // defined: $post, $field, $name, $value, $desc ?>
+<?php // defined: $post, $field, $name, $value, $description ?>
 
-<?php if ($field['type'] == 'text') { ?>
+<?php if ($field->type == 'text') { ?>
 
 	<input
 		type="text"
@@ -9,9 +9,9 @@
 		value="<?php echo esc_attr($value); ?>"
 	/>
 
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'int') { ?>
+<?php } else if ($field->type == 'int') { ?>
 
 	<input
 		type="text"
@@ -21,9 +21,9 @@
 		style="width: 50px;"
 	/>
 
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'date') { ?>
+<?php } else if ($field->type == 'date') { ?>
 
 	<input
 		type="text"
@@ -34,9 +34,9 @@
 		placeholder="mm/dd/yyyy"
 	/>
 
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'time') { ?>
+<?php } else if ($field->type == 'time') { ?>
 
 	<input
 		type="text"
@@ -46,9 +46,9 @@
 		placeholder="hh:mm am"
 	/>
 
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'date-time') { ?>
+<?php } else if ($field->type == 'date-time') { ?>
 
 	<input
 		type="text"
@@ -66,9 +66,9 @@
 		placeholder="hh:mm am"
 	/>
 
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'time-range') { ?>
+<?php } else if ($field->type == 'time-range') { ?>
 	
 	<input
 		type="text"
@@ -85,9 +85,9 @@
 		placeholder="hh:mm am"
 	/>
 
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'money') { ?>
+<?php } else if ($field->type == 'money') { ?>
 
 	<input
 		type="text"
@@ -96,16 +96,16 @@
 		value="<?php echo esc_attr($value); ?>"
 	/>
 
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'select') { ?>
+<?php } else if ($field->type == 'select') { ?>
 
 	<select
 		name="<?php echo $name; ?>"
 		id="<?php echo $name; ?>"
 	>
 		<option value=""></option>
-		<?php foreach ($field['options'] as $val => $text) { ?>
+		<?php foreach ($field->options as $val => $text) { ?>
 			<option
 				value="<?php echo esc_attr($val); ?>"
 				<?php if ($val == $value) echo 'selected'; ?>
@@ -115,13 +115,13 @@
 		<?php } ?>
 	</select>
 	
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'radio') { ?>
+<?php } else if ($field->type == 'radio') { ?>
 
 	<?php $first = true; ?>
 
-	<?php foreach ($field['options'] as $val => $text) { ?>
+	<?php foreach ($field->options as $val => $text) { ?>
 		<?php
 			if ($first) $first = false;
 			else echo "<br />";
@@ -139,9 +139,9 @@
 		</label>
 	<?php } ?>
 	
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'textarea') { ?>
+<?php } else if ($field->type == 'textarea') { ?>
 
 	<textarea
 		name="<?php echo $name; ?>"
@@ -150,9 +150,9 @@
 		style="width: 98%;"
 	><?php echo $value; ?></textarea>
 
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'checkbox') { ?>
+<?php } else if ($field->type == 'checkbox') { ?>
 
 	<input
 		type="checkbox"
@@ -161,77 +161,69 @@
 		<?php if ($value) echo 'checked'; ?>
 	/>
 
-	<?php if (isset($field['desc']) && !empty($field['desc'])) { ?>
+	<?php if (isset($field->description) && !empty($field->description)) { ?>
 		<label for="<?php echo $name; ?>">
-			<?php echo $field['desc']; ?>
+			<?php echo $field->description; ?>
 		</label>
 	<?php } ?>
 
-<?php } else if ($field['type'] == 'slider') { ?>
+<?php } else if ($field->type == 'slider') { ?>
 	
-	<?php
-		$min = isset($field['min']) ? $field['min'] : 0;
-		$max = isset($field['max']) ? $field['max'] : 100;
-	?>
-
 	<input
 		type="hidden"
 		name="<?php echo $name; ?>__min"
 		id="<?php echo $name; ?>__min"
-		value="<?php echo $min; ?>"
+		value="<?php echo $field->options['min']; ?>"
 	/>
 	
 	<input
 		type="hidden"
 		name="<?php echo $name; ?>__max"
 		id="<?php echo $name; ?>__max"
-		value="<?php echo $max; ?>"
+		value="<?php echo $field->options['max']; ?>"
 	/>
 	
 	<input
 		type="text"
 		name="<?php echo $name; ?>"
 		id="<?php echo $name; ?>"
-		value="<?php echo empty($value) ? $min : $value; ?>"
+		value="<?php echo empty($value) ? $field->options['min'] : $value; ?>"
 	/>
 	
 	<div class="postyper_slider" rel="<?php echo $name; ?>"></div>
 		
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
-<?php } else if ($field['type'] == 'range') { ?>
+<?php } else if ($field->type == 'range') { ?>
 	
-	<?php
-		$min = isset($field['min']) ? $field['min'] : 0;
-		$max = isset($field['max']) ? $field['max'] : 100;
-	?>
+	<?php $value = unserialize($value); ?>
 	
 	<input
 		type="hidden"
 		name="<?php echo $name; ?>[min]"
 		id="<?php echo $name; ?>__min"
-		value="<?php echo $min; ?>"
+		value="<?php echo $field->options['min']; ?>"
 	/>
 	
 	<input
 		type="hidden"
 		name="<?php echo $name; ?>[max]"
 		id="<?php echo $name; ?>__max"
-		value="<?php echo $max; ?>"
+		value="<?php echo $field->options['max']; ?>"
 	/>
 	
 	<input
 		type="text"
 		name="<?php echo $name; ?>[low]"
 		id="<?php echo $name; ?>__low"
-		value="<?php echo isset($value['low']) ? $value['low'] : $min; ?>"
+		value="<?php echo isset($value['low']) ? $value['low'] : $field->options['min']; ?>"
 	/>
 	
 	<input
 		type="text"
 		name="<?php echo $name; ?>[high]"
 		id="<?php echo $name; ?>__high"
-		value="<?php echo isset($value['high']) ? $value['high'] : $max; ?>"
+		value="<?php echo isset($value['high']) ? $value['high'] : $field->options['max']; ?>"
 	/>
 	
 	<div
@@ -239,6 +231,6 @@
 		rel="<?php echo $name; ?>"
 	></div>
 		
-	<?php echo $desc; ?>
+	<?php echo $description; ?>
 
 <?php } ?>

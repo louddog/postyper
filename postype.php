@@ -1,28 +1,53 @@
 <?php
 
 class Postype {
+	var $id = 0;
 	var $slug = 'postype';
-	var $archive_slug = 'postypes';
+	var $archive = 'postypes';
 	var $singular = "Item";
 	var $plural = "Items";
 	var $menu_position = 20;
-
-	var $meta = array();
+	var $fields = array();
 
 	function __construct($options) {
-		foreach ($options as $option => $value) {
-			if (property_exists($this, $option)) {
-				$this->$option = $value;
+		global $wpdb;
+		$register = true;
+		$where = false;
+		
+		if (is_numeric($options)) $where = "postype_id = %d";
+		else if (is_string($options)) $where = "slug = %s";
+		
+		if ($where) {
+			if ($postype = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->postypes WHERE $where", $options))) {
+				$this->id = $postype->postype_id;
+				$this->slug = $postype->slug;
+				$this->archive = $postype->archive;
+				$this->singular = $postype->singular;
+				$this->plural = $postype->plural;
+				
+				$this->fields = $wpdb->get_results("SELECT * FROM $wpdb->postype_fields WHERE postype_id = $this->id");
+				
+				foreach ($this->fields as $ndx => $field) {
+					$this->fields[$ndx]->options = unserialize($field->options);
+				}
+			} else $register = false;
+		} else {
+			foreach ($options as $option => $value) {
+				if (property_exists($this, $option)) {
+					$this->$option = $value;
+				}
 			}
 		}
-
-		add_action('init', array(&$this, 'register_post_type'));
-		add_action('admin_enqueue_scripts', array(&$this, 'includes'));
-		add_action('admin_init', array(&$this, 'meta_boxes'));
-		add_action('save_post', array(&$this, 'save_post'));
+		
+		if ($register) {
+			add_action('init', array(&$this, 'register'));
+			add_action('admin_enqueue_scripts', array(&$this, 'includes'));
+			add_action('admin_init', array(&$this, 'meta_boxes'));
+			add_action('save_post', array(&$this, 'save_post'));
+		}
 	}
 
-	function register_post_type() {
+	function register() {
 		register_post_type($this->slug, array(
 			'labels' => array(
 				'name' => $this->plural,
@@ -41,9 +66,9 @@ class Postype {
 			'capability_type' => 'post',
 			'hierarchical' => false,
 			'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'custom-fields', 'comments', 'revisions'),
-			'has_archive' => $this->archive_slug,
+			'has_archive' => $this->archive,
 			'rewrite' => array(
-				'slug' => $this->archive_slug,
+				'slug' => $this->archive,
 				'with_front' => false,
 			),
 		));
@@ -59,9 +84,9 @@ class Postype {
 
 	function meta_boxes() {
 		$contexts = array();
-		foreach ($this->meta as $name => $field) {
-			$context = isset($field['context']) ? $field['context'] : 'normal';
-			$contexts[$context][$name] = $field;
+		foreach ($this->fields as $field) {
+			$context = isset($field->context) ? $field->context : 'normal';
+			$contexts[$context][$field->name] = $field;
 		}
 
 		foreach ($contexts as $context => $fields) {
@@ -78,19 +103,19 @@ class Postype {
 	}
 
 	function meta_box($post, $metabox) { ?>
-
+		
 		<table class="form-table">
 			<?php foreach($metabox['args'] as $field) {
-				$name = "postyper_".$field['name'];
-				$value = get_post_meta($post->ID, $name, true);
-				$desc = isset($field['desc']) && !empty($field['desc'])
-					? '<br /><span class="description">'.$field['desc'].'</span>'
+				$name = "postyper_field_$field->postype_field_id";
+				$value = get_post_meta($post->ID, "postyper_$field->name", true);
+				$description = isset($field->description) && !empty($field->description)
+					? "<br /><span class='description'>$field->description</span>"
 					: '';
 				?>
 				<tr>
 					<th>
-						<label for="postyper_<?php echo $field['name']; ?>">
-							<?php echo $field['label']; ?>
+						<label for="<?php echo $name; ?>">
+							<?php echo $field->label; ?>
 						</label>
 					</th>
 					<td class="input">
@@ -100,21 +125,56 @@ class Postype {
 			<?php } ?>
 		</table>
 		
-		<?php wp_nonce_field(plugin_basename(__FILE__), 'postyper_nonce'); ?>
+		<?php wp_nonce_field(plugin_basename(__FILE__), 'postyper_meta_nonce'); ?>
 
 	<?php }
 	
+	function save() {
+		global $wpdb;
+		
+		$data = array(
+			'slug' => $this->slug,
+			'archive' => $this->archive,
+			'singular' => $this->singular,
+			'plural' => $this->plural,
+		);
+
+		if ($this->id) {
+			$wpdb->update($wpdb->postypes, $data, array('postype_id' => $this->id));
+		} else {
+			$wpdb->insert($wpdb->postypes, $data);
+			$this->id = $wpdb->insert_id;
+		}
+		
+		foreach ($this->fields as $ndx => $field) {
+			$data = array(
+				'name' => $field['name'],
+				'type' => $field['type'],
+				'label' => $field['label'],
+				'description' => $field['description'],
+			);
+			
+			if ($field['id']) {
+				$wpdb->update($wpdb->postype_fields, $data, array('postype_field_id' => $field['id']));
+			} else {
+				$data['postype_id'] = $this->id;
+				$wpdb->insert($wpdb->postypes_fields, $data);
+				$this->fields[$ndx]['id'] = $wpdb->insert_id;
+			}
+		}
+	}
+	
 	function save_post($post_id) {
-		if (!isset($_POST['postyper_nonce'])) return $post_id;
-		if (!wp_verify_nonce($_POST['postyper_nonce'], plugin_basename(__FILE__))) return $post_id;
+		if (!isset($_POST['postyper_meta_nonce'])) return $post_id;
+		if (!wp_verify_nonce($_POST['postyper_meta_nonce'], plugin_basename(__FILE__))) return $post_id;
 	    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return $post_id;
 		if ($_POST['post_type'] != $this->slug) return $post_id;
 		if (!current_user_can('edit_post', $post_id)) return $post_id;
 
-	    foreach ($this->meta as $field) {
-			$name = 'postyper_'.$field['name'];
+	    foreach ($this->fields as $field) {
+			$name = "postyper_field_$field->postype_field_id";
 			
-			switch ($field['type']) {
+			switch ($field->type) {
 				case 'checkbox':
 					$new = isset($_POST[$name]);
 					break;
@@ -157,12 +217,19 @@ class Postype {
 					$new = floatval($_POST[$name]);
 					break;
 					
+				case 'range':
+					$new = serialize(array(
+						'low' => $_POST[$name]['low'],
+						'high' => $_POST[$name]['high'],
+					));
+					break;
+					
 				default:
 					$new = isset($_POST[$name]) ? trim($_POST[$name]) : '';
 			}
 
-	        $old = get_post_meta($post_id, $name, true);
-	        if ($new != $old) update_post_meta($post_id, $name, $new);
+	        $old = get_post_meta($post_id, "postyper_$field->name", true);
+	        if ($new != $old) update_post_meta($post_id, "postyper_$field->name", $new);
 	    }
 	}
 }
