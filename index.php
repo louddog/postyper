@@ -7,6 +7,7 @@ Version: 0.1
 Author URI: http://postyper.louddog.com/
 */
 
+/* TOOD: Add version option for the plugin */
 define('POSTYPER_PATH', dirname(__FILE__));
 define('POSTYPER_URL', plugin_dir_url(__FILE__));
 
