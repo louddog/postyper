@@ -8,14 +8,17 @@ Author URI: http://postyper.louddog.com/
 */
 
 /* TOOD: Add version option for the plugin */
+
 define('POSTYPER_PATH', dirname(__FILE__));
 define('POSTYPER_URL', plugin_dir_url(__FILE__));
+define('POSTYPER_NONCE_PATH', plugin_basename(__FILE__));
 
 require_once(POSTYPER_PATH.'/postype.php');
 
 new Postyper();
 class Postyper {
 	var $postypes = array();
+	var $postype = null;
 	
 	public static $types = array(
 		'text',
@@ -45,7 +48,9 @@ class Postyper {
 		
 		register_activation_hook(__FILE__, array($this, 'activate'));
 		register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+		add_action('admin_init', array(&$this, 'save_postype'));
 		add_action('admin_menu', array(&$this, 'admin_menu'));
+		add_action('admin_notices', array(&$this, 'admin_notices'));
 	}
 	
 	function activate() {
@@ -120,5 +125,60 @@ class Postyper {
 	
 	function postype_settings() {
 		include POSTYPER_PATH.'/postype_settings.php';
+	}
+	
+	function save_postype() {
+		$this->postype = new Postype(str_replace('postyper_', '', $_GET['page']));
+
+		if (
+			isset($_POST['postyper_save_nonce']) &&
+			wp_verify_nonce($_POST['postyper_save_nonce'], POSTYPER_NONCE_PATH)
+		) {
+			$post = stripslashes_deep($_POST);	
+			$this->postype->slug = trim($post['slug']);
+			$this->postype->archive = trim($post['archive']);
+			$this->postype->singular = trim($post['singular']);
+			$this->postype->plural = trim($post['plural']);
+
+			$this->postype->fields = array();
+
+			if (isset($post['field_id'])) {
+				foreach ($post['field_id'] as $ndx => $id) {
+					$this->postype->fields[] = (object) array(
+						'postype_field_id' => $id == 'new' ? false : $id,
+						'label' => trim($post['field_label'][$ndx]),
+						'name' => trim($post['field_name'][$ndx]),
+						'type' => $post['field_type'][$ndx],
+						'description' => trim($post['field_description'][$ndx]),
+					);
+				}
+			}
+
+			$this->postype->save();
+			$this->add_admin_notice($this->postype->singular." postype saved");
+		}
+		
+		if ($_GET['page'] == 'postyper-new' && $this->postype->id) {
+			wp_redirect(admin_url("admin.php?page=postyper_".$this->postype->slug), 302);
+			exit;
+		}
+	}
+	
+	function add_admin_notice($notice) {
+		$notices = get_option('postyper_notices', array());
+		$notices[] = $notice;
+		update_option('postyper_notices', $notices);
+	}
+	
+	function admin_notices() {
+		$notices = get_option('postyper_notices', array());
+		if (count($notices)) {
+			foreach ($notices as $notice) { ?>
+				<div class="updated">
+					<p><?php echo $notice; ?></p>
+				</div>
+			<?php }
+			delete_option('postyper_notices');
+		}
 	}
 }
