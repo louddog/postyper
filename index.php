@@ -128,6 +128,8 @@ class Postyper {
 	}
 	
 	function save_postype() {
+		if (!isset($_GET['page'])) return;
+		
 		$this->postype = new Postype(str_replace('postyper_', '', $_GET['page']));
 
 		if (
