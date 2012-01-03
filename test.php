@@ -54,9 +54,9 @@ new Postype($postype = array(
 			'label' => "Department",
 			'description' => "The department the employee works in.",
 			'options' => array(
-				'engineering' => "Engineering",
-				'design' => "Design",
-				'human resources' => "Human Resources",
+				"Engineering",
+				"Design",
+				"Human Resources",
 			),
 		),
 		array(
@@ -65,12 +65,12 @@ new Postype($postype = array(
 			'label' => "Location",
 			'description' => "The location the employee is working.",
 			'options' => array(
-				'ca' => "California",
-				'hi' => "Hawaii",
-				'ny' => "New York",
-				'ld' => "London",
-				'hg' => "Hong Kong",
-				'br' => "Brisbane",
+				"California",
+				"Hawaii",
+				"New York",
+				"London",
+				"Hong Kong",
+				"Brisbane",
 			),
 		),
 		array(

@@ -155,6 +155,7 @@ class Postype {
 				'type' => $field->type,
 				'label' => $field->label,
 				'description' => $field->description,
+				'options' => serialize($field->options),
 			);
 			
 			if ($field->postype_field_id) {
@@ -165,6 +166,8 @@ class Postype {
 				$this->fields[$ndx]->postype_field_id = $wpdb->insert_id;
 			}
 		}
+		
+		// TODO: delete any fields no longer present
 	}
 	
 	function save_post($post_id) {

@@ -137,27 +137,38 @@ class Postyper {
 			wp_verify_nonce($_POST['postyper_save_nonce'], POSTYPER_NONCE_PATH)
 		) {
 			$post = stripslashes_deep($_POST);	
+			
 			$this->postype->slug = trim($post['slug']);
 			$this->postype->archive = trim($post['archive']);
 			$this->postype->singular = trim($post['singular']);
 			$this->postype->plural = trim($post['plural']);
-
 			$this->postype->fields = array();
 
-			if (isset($post['field_id'])) {
-				foreach ($post['field_id'] as $ndx => $id) {
+			if (is_array($post['fields'])) {
+				foreach ($post['fields'] as $field) {
+					$options = array();
+					if (isset($field['options'])) {
+						foreach ($field['options'] as $option) {
+							$option = trim($option);
+							if (!empty($option)) $options[] = $option;
+						}
+					}
+					
 					$this->postype->fields[] = (object) array(
-						'postype_field_id' => $id == 'new' ? false : $id,
-						'label' => trim($post['field_label'][$ndx]),
-						'name' => trim($post['field_name'][$ndx]),
-						'type' => $post['field_type'][$ndx],
-						'description' => trim($post['field_description'][$ndx]),
+						'postype_field_id' => is_numeric($field['id']) ? $field['id'] : false,
+						'label' => trim($field['label']),
+						'name' => trim($field['name']),
+						'type' => $field['type'],
+						'description' => trim($field['description']),
+						'options' => $options,
 					);
 				}
 			}
-
+			
 			$this->postype->save();
 			$this->add_admin_notice($this->postype->singular." postype saved");
+			// TODO: Why isn't this message displaying?
+			wp_redirect($_SERVER['REQUEST_URI'], 302);
 		}
 		
 		if ($_GET['page'] == 'postyper-new' && $this->postype->id) {
@@ -181,6 +192,7 @@ class Postyper {
 				</div>
 			<?php }
 			delete_option('postyper_notices');
+			die;
 		}
 	}
 }

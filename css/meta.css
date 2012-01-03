@@ -1,3 +1,26 @@
+.postyper_no_fields {
+	font-style: italic;
+	text-align: center;
+	background-color: #EEE;
+}
+
+.postyper_field_template {
+	display: none;
+}
+
+.postyper_fields {
+	width: 100%;
+}
+
+.postyper_fields td {
+	white-space: nowrap;
+}
+
+.postyper_fields .desc,
+.postyper_fields .desc input {
+	width: 100%;
+}
+
 /*
  * jQuery UI CSS Framework 1.8.16
  *

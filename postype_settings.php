@@ -25,52 +25,102 @@
 			</tr>
 		</table>
 	
+		<p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes"></p>
+
 		<h3>Fields</h3>
 		
-		<?php if (empty($this->postype->fields)) { ?>
-			
-			<p>There aren't any fields for this type.</p>
-			
-		<?php } else { ?>
+		<p><a href="#" class="postyper_add_field">add field</a></p>
 		
-			<table>
-				<tr>
-					<th>Title</th>
-					<th>Name</th>
-					<th>Type</th>
-					<th>Options</th>
+		
+		<table class="postyper_fields">
+			<tr>
+				<th>Title</th>
+				<th>Name</th>
+				<th>Type</th>
+				<th>Description</th>
+				<th>Options</th>
+			</tr>
+	
+			<?php if (empty($this->postype->fields)) { ?>
+
+				<tr class="postyper_no_fields"><td colspan="5">There aren't yet any fields for this type.  <a href="#" class="postyper_add_field">Add</a> the first one now.</td></tr>
+
+			<?php } else foreach ($this->postype->fields as $ndx => $field) { ?>
+				
+				<tr rel="<?php echo $ndx; ?>">
+					<td class="label">
+						<input type="hidden" name="fields[<?php echo $ndx; ?>][id]" value="<?php echo $field->postype_field_id; ?>" />
+						<input type="text" name="fields[<?php echo $ndx; ?>][label]" value="<?php echo esc_attr($field->label); ?>" />
+					</td>
+
+					<td class="name">
+						<input type="text" name="fields[<?php echo $ndx; ?>][name]" value="<?php echo esc_attr($field->name); ?>" />
+					</td>
+					
+					<td class="type">
+						<select name="fields[<?php echo $ndx; ?>][type]" id="postyer_type">
+							<?php foreach (Postyper::$types as $type) { ?>
+								<option value="<?php echo esc_attr($type); ?>" <?php if ($type == $field->type) echo 'selected'; ?>>
+									<?php echo $type; ?>
+								</option>
+							<?php } ?>
+						</select>
+					</td>
+
+					<td class="desc">
+						<input type="text" name="fields[<?php echo $ndx; ?>][description]" value="<?php echo esc_attr($field->description); ?>" />
+					</td>
+
+					<td class="options">
+						<?php if (in_array($field->type, array('radio', 'select'))) { ?>
+							<?php if (is_array($field->options)) foreach ($field->options as $option) { ?>
+								<input type="text" name="fields[<?php echo $ndx; ?>][options][]" value="<?php echo esc_attr($option); ?>" />
+							<?php } ?>
+							<a href="#" class="new">new</a>
+						<?php } ?>
+					</td>
 				</tr>
-		
-				<?php foreach ($this->postype->fields as $field) { ?>
-					<tr>
-						<td class="label">
-							<input type="hidden" name="field_id[]" value="<?php echo $field->postype_field_id; ?>" />
-							<input type="text" name="field_label[]" value="<?php echo esc_attr($field->label); ?>" />
-						</td>
+				
+			<?php } ?>
+			
+			<tbody class="postyper_template" rel="row">
+				<tr>
+					<td class="label">
+						<input type="hidden" name="fields[new][id]" />
+						<input type="text" name="fields[new][label]"  />
+					</td>
 
-						<td class="name">
-							postyper_<input type="text" name="field_name[]" value="<?php echo esc_attr($field->name); ?>" />
-						</td>
+					<td class="name">
+						<input type="text" name="fields[new][name]" />
+					</td>
+					
+					<td class="type">
+						<select name="fields[new][type]">
+							<?php foreach (Postyper::$types as $type) { ?>
+								<option value="<?php echo esc_attr($type); ?>">
+									<?php echo $type; ?>
+								</option>
+							<?php } ?>
+						</select>
+					</td>
 
-						<td class="type">
-							<select name="field_type[]" id="postyer_type">
-								<?php foreach (Postyper::$types as $type) { ?>
-									<option value="<?php echo esc_attr($type); ?>" <?php if ($type == $field->type) echo 'selected'; ?>>
-										<?php echo $type; ?>
-									</option>
-								<?php } ?>
-							</select>
-						</td>
+					<td class="desc">
+						<input type="text" name="fields[new][description]" />
+					</td>
 
-						<td class="desc">
-							<input type="text" name="field_description[]" value="<?php echo esc_attr($field->description); ?>" />
-						</td>
-					</tr>
-				<?php } ?>
-			</table>
+					<td class="options">
+						<a href="#" class="new">new</a>
+					</td>
+				</tr>
+				
+			</tbody>
+			
+		</table>
 		
-		<?php } ?>
+		<div class="postyper_template" rel="radio">
+			<input type="radio" /><label />
+		</div>
 		
-		<p class="submit"><input type="submit" name="submit" id="submit" class="button-primary" value="Save Changes"></p>
+		<p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes"></p>
 	</form>
 </div>
