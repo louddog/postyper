@@ -110,7 +110,7 @@ class Postype {
 		<table class="form-table">
 			<?php foreach($metabox['args'] as $field) {
 				$name = "postyper_field_$field->postype_field_id";
-				$value = get_post_meta($post->ID, "postyper_$field->name", true);
+				$value = get_post_meta($post->ID, $field->name, true);
 				$description = isset($field->description) && !empty($field->description)
 					? "<br /><span class='description'>$field->description</span>"
 					: '';
