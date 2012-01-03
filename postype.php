@@ -234,14 +234,13 @@ class Postype {
 					$new = isset($_POST[$name]) ? trim($_POST[$name]) : '';
 			}
 
-	        $old = get_post_meta($post_id, "postyper_$field->name", true);
-	        if ($new != $old) update_post_meta($post_id, "postyper_$field->name", $new);
+	        $old = get_post_meta($post_id, $field->name, true);
+	        if ($new != $old) update_post_meta($post_id, $field->name, $new);
 	    }
 	}
 	
 	public function options($post, $name) {
 		$type = get_post_type($post);
-		$name = str_replace('postyper_', '', $name);
 		foreach (self::$postypes[$type]->fields as $field) {
 			if ($field->name == $name) return $field->options;
 		}
@@ -253,9 +252,4 @@ class Postype {
 		$key = get_post_meta($post->ID, $name, true);
 		return $options && isset($options[$key]) ? $options[$key] : $alt;
 	}
-	
-	public function debug() {
-		echo "<pre>".print_r(self::$postypes, true)."</pre>";
-	}
-	
 }
