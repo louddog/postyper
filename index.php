@@ -169,9 +169,6 @@ class Postyper {
 
 				<h3>Fields</h3>
 
-				<p><a href="#" class="postyper_add_field">add field</a></p>
-
-
 				<table class="postyper_fields">
 					<tr>
 						<th>Title</th>
@@ -260,6 +257,8 @@ class Postyper {
 				<div class="postyper_template" rel="radio">
 					<input type="radio" /><label />
 				</div>
+				
+				<p class="submit"><input type="button" class="postyper_add_field" value="add field" /></p>
 
 				<p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes"></p>
 			</form>
