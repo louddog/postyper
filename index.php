@@ -332,7 +332,6 @@ class Postyper {
 				</div>
 			<?php }
 			delete_option('postyper_notices');
-			die;
 		}
 	}
 }
