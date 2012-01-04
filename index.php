@@ -219,6 +219,8 @@ class Postyper {
 						</tr>
 
 					<?php } ?>
+					
+					<p class="tip">Tip: If you start a field's name with an underscore (_), then it will be hidden from the "Custom Fields" meta box.</p>
 
 					<tbody class="postyper_template" rel="row">
 						<tr>
