@@ -367,44 +367,6 @@ class Postype {
 
 	<?php }
 	
-	function save() {
-		global $wpdb;
-		
-		$data = array(
-			'slug' => $this->slug,
-			'archive' => $this->archive,
-			'singular' => $this->singular,
-			'plural' => $this->plural,
-		);
-
-		if ($this->id) {
-			$wpdb->update($wpdb->postypes, $data, array('postype_id' => $this->id));
-		} else {
-			$wpdb->insert($wpdb->postypes, $data);
-			$this->id = $wpdb->insert_id;
-		}
-		
-		foreach ($this->fields as $ndx => $field) {
-			$data = array(
-				'name' => $field->name,
-				'type' => $field->type,
-				'label' => $field->label,
-				'description' => $field->description,
-				'options' => serialize($field->options),
-			);
-			
-			if ($field->postype_field_id) {
-				$wpdb->update($wpdb->postype_fields, $data, array('postype_field_id' => $field->postype_field_id));
-			} else {
-				$data['postype_id'] = $this->id;
-				$wpdb->insert($wpdb->postype_fields, $data);
-				$this->fields[$ndx]->postype_field_id = $wpdb->insert_id;
-			}
-		}
-		
-		// TODO: delete any fields no longer present
-	}
-	
 	function save_post($post_id) {
 		if (!isset($_POST['postyper_meta_nonce'])) return $post_id;
 		if (!wp_verify_nonce($_POST['postyper_meta_nonce'], plugin_basename(__FILE__))) return $post_id;

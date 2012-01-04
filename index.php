@@ -137,31 +137,35 @@ class Postyper {
 		</div>
 	<?php }
 	
-	function postype_settings() { ?>
+	function postype_settings() {
+		$postype = new Postype(str_replace('postyper_', '', $_GET['page']));
+		?>
 		<div class="wrap">
 			<div id="icon-options-general" class="icon32"><br /></div>
-			<h2>Custom Post Type: <em><?php echo $this->postype->singular; ?></em></h2>
+			<h2>Custom Post Type: <em><?php echo $postype->singular; ?></em></h2>
 
 			<form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
 
 				<?php wp_nonce_field(plugin_basename(__FILE__), 'postyper_save_nonce'); ?>
+				
+				<input type="hidden" name="postype_id" value="<?php echo $postype->id ? $postype->id : 'new'; ?>" />
 
 				<table>
 					<tr>
 						<th><label for="slug">Slug</label></th>
-						<td><input type="text" name="slug" value="<?php echo esc_attr($this->postype->slug); ?>" /></td>
+						<td><input type="text" name="slug" value="<?php echo esc_attr($postype->slug); ?>" /></td>
 					</tr>
 					<tr>
 						<th><label for="archive">Archive</label></th>
-						<td><input type="text" name="archive" value="<?php echo esc_attr($this->postype->archive); ?>" /></td>
+						<td><input type="text" name="archive" value="<?php echo esc_attr($postype->archive); ?>" /></td>
 					</tr>
 					<tr>
 						<th><label for="singular">Singular</label></th>
-						<td><input type="text" name="singular" value="<?php echo esc_attr($this->postype->singular); ?>" /></td>
+						<td><input type="text" name="singular" value="<?php echo esc_attr($postype->singular); ?>" /></td>
 					</tr>
 					<tr>
 						<th><label for="plural">Plural</label></th>
-						<td><input type="text" name="plural" value="<?php echo esc_attr($this->postype->plural); ?>" /></td>
+						<td><input type="text" name="plural" value="<?php echo esc_attr($postype->plural); ?>" /></td>
 					</tr>
 				</table>
 
@@ -178,15 +182,15 @@ class Postyper {
 						<th>Options</th>
 					</tr>
 
-					<?php if (empty($this->postype->fields)) { ?>
+					<?php if (empty($postype->fields)) { ?>
 
 						<tr class="postyper_no_fields"><td colspan="5">There aren't yet any fields for this type.  <a href="#" class="postyper_add_field">Add</a> the first one now.</td></tr>
 
-					<?php } else foreach ($this->postype->fields as $ndx => $field) { ?>
+					<?php } else foreach ($postype->fields as $ndx => $field) { ?>
 
 						<tr rel="<?php echo $ndx; ?>">
 							<td class="label">
-								<input type="hidden" name="fields[<?php echo $ndx; ?>][id]" value="<?php echo $field->postype_field_id; ?>" />
+								<input type="hidden" name="fields[<?php echo $ndx; ?>][postype_field_id]" value="<?php echo $field->postype_field_id; ?>" />
 								<input type="text" name="fields[<?php echo $ndx; ?>][label]" value="<?php echo esc_attr($field->label); ?>" />
 							</td>
 
@@ -225,7 +229,7 @@ class Postyper {
 					<tbody class="postyper_template" rel="row">
 						<tr>
 							<td class="label">
-								<input type="hidden" name="fields[new][id]" />
+								<input type="hidden" name="fields[new][postype_field_id]" />
 								<input type="text" name="fields[new][label]"  />
 							</td>
 
@@ -268,22 +272,26 @@ class Postyper {
 	<?php }
 	
 	function save_postype() {
-		if (!isset($_GET['page'])) return;
-		
-		$this->postype = new Postype(str_replace('postyper_', '', $_GET['page']));
-
-		if (
-			isset($_POST['postyper_save_nonce']) &&
-			wp_verify_nonce($_POST['postyper_save_nonce'], plugin_basename(__FILE__))
-		) {
-			$post = stripslashes_deep($_POST);	
+		if (isset($_POST['postyper_save_nonce']) && wp_verify_nonce($_POST['postyper_save_nonce'], plugin_basename(__FILE__))) {
+			global $wpdb;
+			$post = stripslashes_deep($_POST);
+			$postype = new Postype($post['postype_id']);
 			
-			$this->postype->slug = trim($post['slug']);
-			$this->postype->archive = trim($post['archive']);
-			$this->postype->singular = trim($post['singular']);
-			$this->postype->plural = trim($post['plural']);
-			$this->postype->fields = array();
+			$postype_data = array(
+				'slug' => trim($post['slug']),
+				'archive' => trim($post['archive']),
+				'singular' => trim($post['singular']),
+				'plural' => trim($post['plural']),
+			);
 
+			if ($postype->id) {
+				$wpdb->update($wpdb->postypes, $postype_data, array('postype_id' => $postype->id));
+			} else {
+				$wpdb->insert($wpdb->postypes, $postype_data);
+				$postype->id = $wpdb->insert_id;
+			}
+			
+			$fields = array();
 			if (is_array($post['fields'])) {
 				foreach ($post['fields'] as $field) {
 					$options = array();
@@ -294,26 +302,29 @@ class Postyper {
 						}
 					}
 					
-					$this->postype->fields[] = (object) array(
-						'postype_field_id' => is_numeric($field['id']) ? $field['id'] : false,
+					$field_data = array(
 						'label' => trim($field['label']),
 						'name' => trim($field['name']),
 						'type' => $field['type'],
 						'description' => trim($field['description']),
-						'options' => $options,
+						'options' => serialize($options),
 					);
+					
+					if (is_numeric($field['postype_field_id'])) {
+						$wpdb->update($wpdb->postype_fields, $field_data, array('postype_field_id' => $field['postype_field_id']));
+					} else {
+						$field_data['postype_id'] = $postype->id;
+						$wpdb->insert($wpdb->postype_fields, $field_data);
+					}
 				}
 			}
-			
-			$this->postype->save();
-			$this->add_admin_notice($this->postype->singular." postype saved");
+
+			// TODO: delete any fields no longer present
+			// TODO: no dup custom field names
+
+			$this->add_admin_notice($postype->singular." postype saved");
 			// TODO: Why isn't this message displaying?
-			wp_redirect($_SERVER['REQUEST_URI'], 302);
-		}
-		
-		if ($_GET['page'] == 'postyper-new' && $this->postype->id) {
-			wp_redirect(admin_url("admin.php?page=postyper_".$this->postype->slug), 302);
-			exit;
+			wp_redirect(admin_url("admin.php?page=postyper_".$postype->slug), 302);
 		}
 	}
 	
