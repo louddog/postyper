@@ -7,7 +7,7 @@ Version: 0.1
 Author URI: http://postyper.louddog.com/
 */
 
-/* TOOD: Add version option for the plugin */
+if (!defined('POSTYPER_VERSION')) define('POSTYPER_VERSION', '0.1');
 
 require_once(dirname(__FILE__).'/postype.php');
 
@@ -36,14 +36,10 @@ class Postyper {
 		global $wpdb;
 		$wpdb->postypes = $wpdb->prefix.'postypes';
 		$wpdb->postype_fields = $wpdb->prefix.'postype_fields';
-		
-		$postype_ids = $wpdb->get_col("SELECT postype_id FROM $wpdb->postypes ORDER BY singular");
-		foreach ($postype_ids as $postype_id) {
-			$this->postypes[] = new Postype($postype_id);
-		}
-		
+
 		register_activation_hook(__FILE__, array($this, 'activate'));
-		register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+		register_deactivation_hook(__FILE__, array($this, 'deactivate'));		
+		add_action('init', 'register_postypes');
 		add_action('admin_enqueue_scripts', array(&$this, 'includes'));
 		add_action('admin_menu', array(&$this, 'admin_menu'));
 		add_action('admin_init', array(&$this, 'save_postype'));
@@ -52,38 +48,50 @@ class Postyper {
 	
 	function activate() {
 		global $wpdb;
+		require_once ABSPATH.'wp-admin/includes/upgrade.php';
 		
-		$wpdb->query(
-			"CREATE TABLE $wpdb->postypes (
-				postype_id bigint(20) unsigned NOT NULL auto_increment,
-				slug varchar(255) default NULL,
-				archive varchar(255) default NULL,
-				singular varchar(255) default NULL,
-				plural varchar(255) default NULL,
+		dbDelta(
+			"CREATE TABLE IF NOT EXISTS $wpdb->postypes (
+				`postype_id` bigint(20) unsigned NOT NULL auto_increment,
+				`slug` varchar(255) default NULL,
+				`archive` varchar(255) default NULL,
+				`singular` varchar(255) default NULL,
+				`plural` varchar(255) default NULL,
 				PRIMARY KEY  (postype_id),
 				KEY slug (slug)
 			) $wpdb->collate;"
 		);
-		
-		$wpdb->query(
-			"CREATE TABLE $wpdb->postype_fields (
-				postype_field_id bigint(20) unsigned NOT NULL auto_increment,
-				postype_id bigint(20) unsigned NOT NULL,
-				name varchar(255) default NULL,
-				type varchar(255) default NULL,
-				label varchar(255) default NULL,
-				description longtext NOT NULL,
-				options longtext NOT NULL,
+	
+		dbDelta(
+			"CREATE TABLE IF NOT EXISTS $wpdb->postype_fields (
+				`postype_field_id` bigint(20) unsigned NOT NULL auto_increment,
+				`postype_id` bigint(20) unsigned NOT NULL,
+				`name` varchar(255) default NULL,
+				`type` varchar(255) default NULL,
+				`label` varchar(255) default NULL,
+				`description` longtext NOT NULL,
+				`options` longtext NOT NULL,
 				PRIMARY KEY  (postype_field_id),
 				KEY postype_id (postype_id)
 			) $wpdb->collate;"
 		);
+		
+		update_option('postyper_version', POSTYPER_VERSION);
 	}
 	
 	function deactivate() {
 		global $wpdb;
 		$wpdb->query("DROP TABLE $wpdb->postypes");
 		$wpdb->query("DROP TABLE $wpdb->postype_fields");
+		delete_option('postyper_version');
+	}
+	
+	function register_postypes() {
+		global $wpdb;
+		$postype_ids = $wpdb->get_col("SELECT postype_id FROM $wpdb->postypes ORDER BY singular");
+		foreach ($postype_ids as $postype_id) {
+			$this->postypes[] = new Postype($postype_id);
+		}
 	}
 	
 	function includes() {
