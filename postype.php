@@ -4,10 +4,10 @@ class Postype {
 	protected static $postypes = array();
 	
 	var $id = 0;
-	var $slug = 'postype';
-	var $archive = 'postypes';
-	var $singular = "Item";
-	var $plural = "Items";
+	var $slug = '';
+	var $archive = '';
+	var $singular = "";
+	var $plural = "";
 	var $menu_position = 20;
 	var $fields = array();
 
