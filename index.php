@@ -95,7 +95,9 @@ class Postyper {
 		global $wpdb;
 		$postype_ids = $wpdb->get_col("SELECT postype_id FROM $wpdb->postypes ORDER BY singular");
 		foreach ($postype_ids as $postype_id) {
-			$this->postypes[] = new Postype($postype_id);
+			$postype = new Postype($postype_id);
+			$postype->register();
+			$this->postypes[] = $postype;
 		}
 	}
 	
