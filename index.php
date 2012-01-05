@@ -308,6 +308,8 @@ class Postyper {
 			$fields = array();
 			if (is_array($post['fields'])) {
 				foreach ($post['fields'] as $field) {
+					if (empty($field['name'])) continue;
+					
 					$options = array();
 					if (isset($field['options'])) {
 						foreach ($field['options'] as $option) {
