@@ -355,8 +355,7 @@ class Postyper {
 
 			// TODO: no dup custom field names
 
-			$this->add_admin_notice($postype->singular." postype saved");
-			// TODO: Why isn't this message displaying?
+			$this->add_admin_notice($postype->singular." postype saved.");
 			wp_redirect(admin_url("admin.php?page=postyper_".$postype->slug), 302);
 		}
 	}
@@ -368,6 +367,7 @@ class Postyper {
 	}
 	
 	function admin_notices() {
+		if (isset($_POST['postyper_save_nonce'])) return;
 		$notices = get_option('postyper_notices', array());
 		if (count($notices)) {
 			foreach ($notices as $notice) { ?>
