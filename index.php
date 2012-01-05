@@ -310,10 +310,13 @@ class Postyper {
 			}
 			
 			$fields = array();
+			$field_names = array();
 			$field_ids_kept = array();
 			if (is_array($post['fields'])) {
 				foreach ($post['fields'] as $field) {
 					if (empty($field['name'])) continue;
+					if (in_array($field['name'], $field_names)) continue;
+					$field_names[] = $field['name'];
 					
 					$options = array();
 					if (isset($field['options'])) {
@@ -352,8 +355,6 @@ class Postyper {
 				$wpdb->query("DELETE FROM $wpdb->postype_fields WHERE postype_field_id IN (".implode(',', $delete_field_ids).")");
 				// TODO: Should we delete all meta data using these fields?  I'm thinking no, for now.
 			}
-
-			// TODO: no dup custom field names
 
 			$this->add_admin_notice($postype->singular." postype saved.");
 			wp_redirect(admin_url("admin.php?page=postyper_".$postype->slug), 302);
