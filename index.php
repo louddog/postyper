@@ -288,6 +288,7 @@ class Postyper {
 		if (isset($_POST['postyper_save_nonce']) && wp_verify_nonce($_POST['postyper_save_nonce'], plugin_basename(__FILE__))) {
 			global $wpdb;
 			$post = stripslashes_deep($_POST);
+			$post['fields'] = $this->trim_deep($post['fields']);
 			$postype = new Postype($post['postype_id']);
 			
 			$postype_data = array(
@@ -316,10 +317,10 @@ class Postyper {
 					}
 					
 					$field_data = array(
-						'label' => trim($field['label']),
-						'name' => trim($field['name']),
+						'label' => $field['label'],
+						'name' => $field['name'],
 						'type' => $field['type'],
-						'description' => trim($field['description']),
+						'description' => $field['description'],
 						'options' => serialize($options),
 					);
 					
@@ -357,5 +358,17 @@ class Postyper {
 			<?php }
 			delete_option('postyper_notices');
 		}
+	}
+	
+	function trim_deep($var) {
+		if (is_array($var)) {
+			$array = array();
+			foreach ($var as $key => $value) {
+				$array[$key] = $this->trim_deep($value);
+			}
+			return $array;
+		} else if (is_string($var)) {
+			return trim($var);
+		} else return $var;
 	}
 }
