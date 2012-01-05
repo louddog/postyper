@@ -306,6 +306,7 @@ class Postyper {
 			}
 			
 			$fields = array();
+			$field_ids_kept = array();
 			if (is_array($post['fields'])) {
 				foreach ($post['fields'] as $field) {
 					if (empty($field['name'])) continue;
@@ -327,6 +328,7 @@ class Postyper {
 					);
 					
 					if (is_numeric($field['postype_field_id'])) {
+						$field_ids_kept[] = $field['postype_field_id'];
 						$wpdb->update($wpdb->postype_fields, $field_data, array('postype_field_id' => $field['postype_field_id']));
 					} else {
 						$field_data['postype_id'] = $postype->id;
@@ -334,8 +336,19 @@ class Postyper {
 					}
 				}
 			}
+			
+			$delete_field_ids = array();
+			foreach ($postype->fields as $field) {
+				if (!in_array($field->postype_field_id, $field_ids_kept)) {
+					$delete_field_ids[] = $field->postype_field_id;
+				}
+			}
+			
+			if (count($delete_field_ids)) {
+				$wpdb->query("DELETE FROM $wpdb->postype_fields WHERE postype_field_id IN (".implode(',', $delete_field_ids).")");
+				// TODO: Should we delete all meta data using these fields?  I'm thinking no, for now.
+			}
 
-			// TODO: delete any fields no longer present
 			// TODO: no dup custom field names
 
 			$this->add_admin_notice($postype->singular." postype saved");
