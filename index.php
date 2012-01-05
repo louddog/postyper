@@ -43,7 +43,7 @@ class Postyper {
 			add_action('plugins_loaded', array(&$this, 'install'));
 		}
 
-		add_action('init', 'register_postypes');
+		add_action('init', array(&$this, 'register_postypes'));
 		add_action('admin_enqueue_scripts', array(&$this, 'includes'));
 		add_action('admin_menu', array(&$this, 'admin_menu'));
 		add_action('admin_init', array(&$this, 'save_postype'));
