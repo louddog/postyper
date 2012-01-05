@@ -36,9 +36,13 @@ class Postyper {
 		global $wpdb;
 		$wpdb->postypes = $wpdb->prefix.'postypes';
 		$wpdb->postype_fields = $wpdb->prefix.'postype_fields';
+		
+		register_activation_hook(__FILE__, array($this, 'install'));
+		register_deactivation_hook(__FILE__, array($this, 'uninstall'));		
+		if (get_option('postyper_version') != POSTYPER_VERSION) {
+			add_action('plugins_loaded', array(&$this, 'install'));
+		}
 
-		register_activation_hook(__FILE__, array($this, 'activate'));
-		register_deactivation_hook(__FILE__, array($this, 'deactivate'));		
 		add_action('init', 'register_postypes');
 		add_action('admin_enqueue_scripts', array(&$this, 'includes'));
 		add_action('admin_menu', array(&$this, 'admin_menu'));
@@ -46,14 +50,14 @@ class Postyper {
 		add_action('admin_notices', array(&$this, 'admin_notices'));
 	}
 	
-	function activate() {
+	function install() {
 		global $wpdb;
 		require_once ABSPATH.'wp-admin/includes/upgrade.php';
 		
 		dbDelta(
-			"CREATE TABLE IF NOT EXISTS $wpdb->postypes (
+			"CREATE TABLE $wpdb->postypes (
 				`postype_id` bigint(20) unsigned NOT NULL auto_increment,
-				`slug` varchar(255) default NULL,
+				`slug` varchar(256) default NULL,
 				`archive` varchar(255) default NULL,
 				`singular` varchar(255) default NULL,
 				`plural` varchar(255) default NULL,
@@ -63,7 +67,7 @@ class Postyper {
 		);
 	
 		dbDelta(
-			"CREATE TABLE IF NOT EXISTS $wpdb->postype_fields (
+			"CREATE TABLE $wpdb->postype_fields (
 				`postype_field_id` bigint(20) unsigned NOT NULL auto_increment,
 				`postype_id` bigint(20) unsigned NOT NULL,
 				`name` varchar(255) default NULL,
@@ -79,11 +83,12 @@ class Postyper {
 		update_option('postyper_version', POSTYPER_VERSION);
 	}
 	
-	function deactivate() {
-		global $wpdb;
-		$wpdb->query("DROP TABLE $wpdb->postypes");
-		$wpdb->query("DROP TABLE $wpdb->postype_fields");
-		delete_option('postyper_version');
+	function uninstall() {
+		// TODO: Create a method to delete data, rather than deleting it on deactivate
+		// global $wpdb;
+		// $wpdb->query("DROP TABLE $wpdb->postypes");
+		// $wpdb->query("DROP TABLE $wpdb->postype_fields");
+		// delete_option('postyper_version');
 	}
 	
 	function register_postypes() {
