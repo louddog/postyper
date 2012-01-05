@@ -233,6 +233,8 @@ class Postyper {
 									<a href="#" class="new">new</a>
 								<?php } ?>
 							</td>
+							
+							<td class="delete"><a href="#">x</a></td>
 						</tr>
 
 					<?php } ?>
@@ -267,8 +269,9 @@ class Postyper {
 							<td class="options">
 								<a href="#" class="new">new</a>
 							</td>
+							
+							<td class="delete"><a href="#">x</a></td>
 						</tr>
-
 					</tbody>
 
 				</table>

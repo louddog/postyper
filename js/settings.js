@@ -24,7 +24,13 @@ jQuery(function($) {
 	$('.postyper_fields').delegate('.options .new', 'click', function() {
 		var ndx = $(this).closest('tr').attr('rel');		
 		$('<input type="text" name="fields[' + ndx + '][options][]" />').insertBefore(this).focus();
-
+		return false;
+	});
+	
+	$('.postyper_fields').delegate('.delete a', 'click', function() {
+		if (confirm("Are you sure?")) {
+			$(this).closest('tr').remove();
+		}
 		return false;
 	});
 });
