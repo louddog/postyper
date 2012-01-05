@@ -306,6 +306,7 @@ class Postyper {
 			} else {
 				$wpdb->insert($wpdb->postypes, $postype_data);
 				$postype->id = $wpdb->insert_id;
+				$postype->slug = $postype_data['slug'];
 			}
 			
 			$fields = array();
