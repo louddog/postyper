@@ -147,19 +147,7 @@ class Postype {
 				case 'checkbox':
 					$new = isset($_POST[$name]);
 					break;
-					
-				case 'date':
-					$new = strtotime($_POST[$name]);
-					if ($new) {
-						$d = getdate($new);
-						$new = mktime(0, 0, 0, $d['mon'], $d['mday'], $d['year']);
-					}
-					break;
-					
-				case 'time':
-					$new = strtotime($_POST[$name]);
-					break;
-					
+										
 				case 'date-time':
 					$date = strtotime($_POST[$name]['date']);
 					$time = strtotime($_POST[$name]['time']);
