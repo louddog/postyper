@@ -8,10 +8,13 @@ class PostypeBoolean extends PostypeField {
 		<input
 			type="checkbox"
 			name="postype[<?php echo $this->postype_field_id; ?>]"
+			id="postype_field_<?php echo $this->postype_field_id; ?>"
 			<?php if ($this->output_value($post_id)) echo "checked"; ?>
 		/>
 
-		<?php $this->output_description(); ?>
+		<label for="postype_field_<?php echo $this->postype_field_id; ?>">
+			<?php echo empty($this->description) ? $this->label : $this->description; ?>
+		</label>
 		
 	<?php }
 	
