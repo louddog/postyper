@@ -20,13 +20,15 @@ jQuery(function($) {
 	
 	$('.postyper_range').each(function() {
 		var rel = $(this).attr('rel');
-		var low_input = $('#' + rel + '__low');
-		var high_input = $('#' + rel + '__high');
-
+		var low_input = $('#' + rel + '_low');
+		var high_input = $('#' + rel + '_high');
+		var min_input = $('#' + rel + '_min');
+		var max_input = $('#' + rel + '_max');
+		
 		$(this).slider({
 			range: true,
-			min: parseInt($('#' + rel + '__min').val(), 10),
-			max: parseInt($('#' + rel + '__max').val(), 10),
+			min: parseInt(min_input.val(), 10),
+			max: parseInt(max_input.val(), 10),
 			values: [low_input.val(), high_input.val()],
 			slide: function(event, ui) {
 				low_input.val(ui.values[0]);
