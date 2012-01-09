@@ -91,8 +91,7 @@ class Postype {
 	function meta_boxes() {
 		$metaboxes = array();
 		foreach ($this->fields as $field) {
-			$context = isset($field->context) ? $field->context : 'normal';
-			$metaboxes[$context][$field->name] = $field;
+			$metaboxes[$field->context][$field->name] = $field;
 		}
 
 		foreach ($metaboxes as $context => $fields) {
@@ -101,8 +100,8 @@ class Postype {
 				_x("$this->singular Options", 'postyper options box title'),
 				array($this, 'meta_box'),
 				$this->slug,
-				$context,
-				$context == 'normal' ? 'high' : 'core',
+				$field->context,
+				$field->context == 'normal' ? 'high' : 'core',
 				$fields
 			);
 		}

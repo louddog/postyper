@@ -72,6 +72,7 @@ class Postyper {
 				`postype_id` bigint(20) unsigned NOT NULL,
 				`name` varchar(255) default NULL,
 				`type` varchar(255) default NULL,
+				`context` varchar(255) default NULL,
 				`label` varchar(255) default NULL,
 				`description` longtext NOT NULL,
 				`options` longtext NOT NULL,
