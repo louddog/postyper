@@ -35,6 +35,7 @@ class PostypeRange extends PostypeField {
 
 		<input
 			type="text"
+			class="postyper_range_value"
 			name="<?php echo $name; ?>[low]"
 			id="<?php echo $id; ?>_low"
 			value="<?php echo isset($value['low']) ? $value['low'] : $this->options['min']; ?>"
@@ -42,6 +43,7 @@ class PostypeRange extends PostypeField {
 
 		<input
 			type="text"
+			class="postyper_range_value"
 			name="<?php echo $name; ?>[high]"
 			id="<?php echo $id; ?>_high"
 			value="<?php echo isset($value['high']) ? $value['high'] : $this->options['max']; ?>"
@@ -58,6 +60,17 @@ class PostypeRange extends PostypeField {
 	}
 	
 	static function field_type_output() { ?>
+		<style>
+			.postyper_range_value {
+				width: 40px;
+				float: left;
+			}
+			
+			.postyper_range {
+				margin: 6px 0 0 100px;
+			}
+		</style>
+		
 		<script>
 			jQuery(function($) {
 				$('.postyper_range').each(function() {

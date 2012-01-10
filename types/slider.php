@@ -35,6 +35,7 @@ class PostypeSlider extends PostypeField {
 
 		<input
 			type="text"
+			class="postyper_slider_value"
 			name="<?php echo $name; ?>"
 			id="<?php echo $id; ?>"
 			value="<?php echo empty($value) ? $min : $value; ?>"
@@ -47,6 +48,16 @@ class PostypeSlider extends PostypeField {
 	<?php }
 	
 	static function field_type_output() { ?>
+		<style>
+			.postyper_slider_value {
+				width: 40px;
+				float: left;
+			}
+			
+			.postyper_slider {
+				margin: 6px 0 0 50px;
+			}
+		</style>
 		<script>
 			jQuery(function($) {
 				$('.postyper_slider').each(function() {
