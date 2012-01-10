@@ -1,7 +1,9 @@
 <?php
 
+postyper_register_field_type('PostypeBoolean');
+
 class PostypeBoolean extends PostypeField {
-	var $type = 'boolean';
+	static $type = 'boolean';
 	
 	function output($post_id) { ?>
 		

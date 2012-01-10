@@ -9,28 +9,11 @@ Author URI: http://postyper.louddog.com/
 
 if (!defined('POSTYPER_VERSION')) define('POSTYPER_VERSION', '0.1');
 
-require_once(dirname(__FILE__).'/postype.php');
-
-new Postyper();
+$postyper = new Postyper();
 class Postyper {
 	var $postypes = array();
+	var $field_types = array();
 	var $postype = null;
-	
-	public static $types = array(
-		'text',
-		'int',
-		'date',
-		'time',
-		'date-time',
-		'time-range',
-		'money',
-		'radio',
-		'select',
-		'checkbox',
-		'textarea',
-		'slider',
-		'range'
-	);
 	
 	function __construct() {
 		global $wpdb;
@@ -43,7 +26,7 @@ class Postyper {
 			add_action('plugins_loaded', array(&$this, 'install'));
 		}
 
-		add_action('init', array(&$this, 'register_postypes'));
+		add_action('init', array(&$this, 'register_saved_postypes'));
 		add_action('admin_enqueue_scripts', array(&$this, 'includes'));
 		add_action('admin_menu', array(&$this, 'admin_menu'));
 		add_action('admin_init', array(&$this, 'save_postype'));
@@ -72,7 +55,12 @@ class Postyper {
 				`postype_id` bigint(20) unsigned NOT NULL,
 				`name` varchar(255) default NULL,
 				`type` varchar(255) default NULL,
-				`context` varchar(255) default NULL,
+				`context{% if  condition %}
+				 
+				{% else %}
+				 what to do else
+				{% endif %}
+				` varchar(255) default NULL,
 				`label` varchar(255) default NULL,
 				`description` longtext NOT NULL,
 				`options` longtext NOT NULL,
@@ -92,7 +80,17 @@ class Postyper {
 		// delete_option('postyper_version');
 	}
 	
-	function register_postypes() {
+	function resgister_postype($postype) {
+	}
+	
+	function register_field_type($className) {
+		$type = new ReflectionClass($className);
+		$this->field_types[$type->getStaticPropertyValue('type')] = array(
+			'className' => $className,
+		);
+	}
+	
+	function register_saved_postypes() {
 		global $wpdb;
 		$postype_ids = $wpdb->get_col("SELECT postype_id FROM $wpdb->postypes ORDER BY singular");
 		foreach ($postype_ids as $postype_id) {
@@ -394,4 +392,16 @@ class Postyper {
 			return trim($var);
 		} else return $var;
 	}
+}
+
+require_once(dirname(__FILE__).'/postype.php');
+
+function postyper_register($postype) {
+	global $postyper; 
+	$postyper->resgister_postype($postype);
+}
+
+function postyper_register_field_type($className) {
+	global $postyper;
+	$postyper->register_field_type($className);
 }

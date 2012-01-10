@@ -81,8 +81,7 @@ class Postype {
 	function includes() {
 		$dir = plugin_dir_url(__FILE__);
 		
-		wp_register_script('postyper_meta', $dir.'js/meta.js', array('jquery-ui-datepicker', 'jquery-ui-slider'), '0.1', true);
-		wp_enqueue_script('postyper_meta');
+		wp_enqueue_script('jquery-ui');
 		
 		wp_register_style('postyper_meta', $dir.'css/jquery-ui.css', false, '0.1');
 		wp_enqueue_style('postyper_meta');
@@ -124,6 +123,13 @@ class Postype {
 			<?php } ?>
 		</table>
 		
+		<?php
+			global $postyper;
+			foreach ($postyper->field_types as $type => $attrs) {
+				call_user_func(array($attrs['className'], 'field_type_output'));
+			}
+		?>
+		
 	<?php }
 	
 	function save_post($post_id) {
@@ -139,14 +145,7 @@ class Postype {
 		
 		return;
 
-	    foreach ($this->fields as $field) {
-			$name = "postyper_field_$field->postype_field_id";
-			
 			switch ($field->type) {
-				case 'checkbox':
-					$new = isset($_POST[$name]);
-					break;
-										
 				case 'date-time':
 					$date = strtotime($_POST[$name]['date']);
 					$time = strtotime($_POST[$name]['time']);
@@ -165,28 +164,13 @@ class Postype {
 					);
 					break;
 					
-				case 'int':
-					$new = intval($_POST[$name]);
-					break;
-					
-				case 'money':
-					$new = floatval($_POST[$name]);
-					break;
-					
 				case 'range':
 					$new = serialize(array(
 						'low' => $_POST[$name]['low'],
 						'high' => $_POST[$name]['high'],
 					));
 					break;
-					
-				default:
-					$new = isset($_POST[$name]) ? trim($_POST[$name]) : '';
 			}
-
-	        $old = get_post_meta($post_id, $field->name, true);
-	        if ($new != $old) update_post_meta($post_id, $field->name, $new);
-	    }
 	}
 	
 	public function options($post, $name) {

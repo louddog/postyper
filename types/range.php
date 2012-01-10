@@ -1,8 +1,14 @@
 <?php
 
+postyper_register_field_type('PostypeRange');
+
 class PostypeRange extends PostypeField {
-	var $type = 'range';
+	static $type = 'range';
 	
+	function admin_enqueue_scripts() {
+		wp_enqueue_script('jquery-ui-slider');
+	}
+
 	function output($post_id) { ?>
 		
 		<?php
@@ -50,6 +56,31 @@ class PostypeRange extends PostypeField {
 	function output_value($post_id) {
 		return unserialize(get_post_meta($post_id, $this->name, true));
 	}
+	
+	static function field_type_output() { ?>
+		<script>
+			jQuery(function($) {
+				$('.postyper_range').each(function() {
+					var rel = $(this).attr('rel');
+					var low_input = $('#' + rel + '_low');
+					var high_input = $('#' + rel + '_high');
+					var min_input = $('#' + rel + '_min');
+					var max_input = $('#' + rel + '_max');
+
+					$(this).slider({
+						range: true,
+						min: parseInt(min_input.val(), 10),
+						max: parseInt(max_input.val(), 10),
+						values: [low_input.val(), high_input.val()],
+						slide: function(event, ui) {
+							low_input.val(ui.values[0]);
+							high_input.val(ui.values[1]);
+						}
+					});
+				});
+			});
+		</script>
+	<?php }
 	
 	function new_value() {
 		return serialize(array(

@@ -1,7 +1,7 @@
 <?php
 
 abstract class PostypeField {
-	var $type = false;
+	static $type = false;
 
 	var $postype_field_id = false;
 	var $label = '';
@@ -11,8 +11,7 @@ abstract class PostypeField {
 	var $options = array();
 	
 	function __construct($field) {
-		if (!$this->type) $this->type = $field->type;
-		if (!$this->type) die("Postyper error: no type provided");
+		print_r(self::$type);
 
 		$this->postype_field_id = $field->postype_field_id;
 		$this->name = $field->name;
@@ -20,6 +19,12 @@ abstract class PostypeField {
 		$this->description = $field->description;
 		$this->context = $field->context;
 		$this->options = unserialize($field->options);
+		
+		add_action('admin_enqueue_scripts', array(&$this, 'admin_enqueue_scripts'));
+	}
+	
+	function admin_enqueue_scripts() {
+		// do nothing
 	}
 	
 	static function get_fields($post_id) {
@@ -30,7 +35,7 @@ abstract class PostypeField {
 		foreach ($rows as $row) {
 			if (class_exists($row->type)) { 
 				$fields[] = new $row->type($row);
-			}
+			} else echo "<p>need $row->type</p>";
 		}
 		
 		return $fields;
@@ -43,13 +48,17 @@ abstract class PostypeField {
 			name="postype[<?php echo $this->postype_field_id; ?>]"
 			value="<?php echo esc_attr($this->output_value($post_id)); ?>"
 		/>
-
+		
 		<?php $this->output_description(); ?>
 		
 	<?php }
 	
 	function output_value($post_id) {
 		return get_post_meta($post_id, $this->name, true);
+	}
+	
+	static function field_type_output() {
+		echo "<p>".self::$type."</p>";
 	}
 	
 	function save($post_id) {
