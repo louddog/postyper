@@ -11,8 +11,6 @@ class PostypeTimeRange extends PostypeField {
 			$name = "postype[$this->postype_field_id]";
 			$id = "postype_range_$this->postype_field_id";
 			$value = $this->output_value($post_id);
-			$min = isset($this->options['min']) ? $this->options['min'] : 0;
-			$max = isset($this->options['max']) ? $this->options['max'] : 100;
 		?>
 		
 		<input
@@ -32,10 +30,14 @@ class PostypeTimeRange extends PostypeField {
 		
 	<?php }
 	
+	function output_value($post_id) {
+		return unserialize(get_post_meta($post_id, $this->name, true));
+	}
+
 	function new_value() {
 		return serialize(array(
-			'starts' => $_POST['postype'][$this->postype_field_id]['starts'],
-			'ends' => $_POST['postype'][$this->postype_field_id]['ends'],
+			'starts' => strtotime($_POST['postype'][$this->postype_field_id]['starts']),
+			'ends' => strtotime($_POST['postype'][$this->postype_field_id]['ends']),
 		));
 	}
 }
