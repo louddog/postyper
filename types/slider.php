@@ -17,6 +17,7 @@ class PostypeSlider extends PostypeField {
 			$value = get_post_meta($post_id, $this->name, true);
 			$min = isset($this->options['min']) ? $this->options['min'] : 0;
 			$max = isset($this->options['max']) ? $this->options['max'] : 100;
+			$value = empty($value) ? $min : $value;
 		?>
 		
 		<input
@@ -34,13 +35,13 @@ class PostypeSlider extends PostypeField {
 		/>
 
 		<input
-			type="text"
-			class="postyper_slider_value"
+			type="hidden"
 			name="<?php echo $name; ?>"
 			id="<?php echo $id; ?>"
-			value="<?php echo empty($value) ? $min : $value; ?>"
+			value="<?php echo $value; ?>"
 		/>
 
+		<div class="postyper_slider_value" id="<?php echo $id; ?>_value"><?php echo $value; ?></div>
 		<div class="postyper_slider" rel="<?php echo $id; ?>"></div>
 
 		<?php echo $this->output_description(); ?>
@@ -50,12 +51,12 @@ class PostypeSlider extends PostypeField {
 	static function field_type_output() { ?>
 		<style>
 			.postyper_slider_value {
-				width: 40px;
+				width: 50px;
 				float: left;
 			}
 			
 			.postyper_slider {
-				margin: 6px 0 0 50px;
+				margin: 6px 0 0 60px;
 			}
 		</style>
 		<script>
@@ -63,6 +64,7 @@ class PostypeSlider extends PostypeField {
 				$('.postyper_slider').each(function() {
 					var rel = $(this).attr('rel');
 					var input = $('#' + rel);
+					var output = $('#' + rel + '_value');
 
 					$(this).slider({
 						min: parseInt($('#' + rel + '_min').val(), 10),
@@ -70,6 +72,7 @@ class PostypeSlider extends PostypeField {
 						value: input.val(),
 						slide: function (event, ui) {
 							input.val(ui.value);
+							output.text(ui.value);
 						}
 					});
 				});

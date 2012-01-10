@@ -17,6 +17,8 @@ class PostypeRange extends PostypeField {
 			$value = $this->output_value($post_id);
 			$min = isset($this->options['min']) ? $this->options['min'] : 0;
 			$max = isset($this->options['max']) ? $this->options['max'] : 100;
+			$low = isset($value['low']) ? $value['low'] : $this->options['min'];
+			$high = isset($value['high']) ? $value['high'] : $this->options['max'];
 		?>
 		
 		<input
@@ -34,20 +36,20 @@ class PostypeRange extends PostypeField {
 		/>
 
 		<input
-			type="text"
-			class="postyper_range_value"
+			type="hidden"
 			name="<?php echo $name; ?>[low]"
 			id="<?php echo $id; ?>_low"
-			value="<?php echo isset($value['low']) ? $value['low'] : $this->options['min']; ?>"
+			value="<?php echo $low; ?>"
 		/>
 
 		<input
-			type="text"
-			class="postyper_range_value"
+			type="hidden"
 			name="<?php echo $name; ?>[high]"
 			id="<?php echo $id; ?>_high"
-			value="<?php echo isset($value['high']) ? $value['high'] : $this->options['max']; ?>"
+			value="<?php echo $high; ?>"
 		/>
+		
+		<div class="postyper_range_values" id="<?php echo $id; ?>_values"><?php echo "$low-$high"; ?></div>
 
 		<div class="postyper_range" rel="<?php echo $id; ?>"></div>
 
@@ -61,13 +63,13 @@ class PostypeRange extends PostypeField {
 	
 	static function field_type_output() { ?>
 		<style>
-			.postyper_range_value {
-				width: 40px;
+			.postyper_range_values {
+				width: 50px;
 				float: left;
 			}
 			
 			.postyper_range {
-				margin: 6px 0 0 100px;
+				margin: 6px 0 0 60px;
 			}
 		</style>
 		
@@ -79,6 +81,7 @@ class PostypeRange extends PostypeField {
 					var high_input = $('#' + rel + '_high');
 					var min_input = $('#' + rel + '_min');
 					var max_input = $('#' + rel + '_max');
+					var output = $('#' + rel + '_values');
 
 					$(this).slider({
 						range: true,
@@ -88,6 +91,7 @@ class PostypeRange extends PostypeField {
 						slide: function(event, ui) {
 							low_input.val(ui.values[0]);
 							high_input.val(ui.values[1]);
+							output.text(ui.values[0] + '-' + ui.values[1]);
 						}
 					});
 				});
