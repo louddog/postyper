@@ -27,15 +27,15 @@ abstract class PostypeField {
 		// do nothing
 	}
 	
-	static function get_fields($post_id) {
+	static function get_fields($postype_id) {
 		global $wpdb;
-		$rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM $wpdb->postype_fields WHERE postype_id = %d", $post_id));
+		$rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM $wpdb->postype_fields WHERE postype_id = %d", $postype_id));
 		
 		$fields = array();
 		foreach ($rows as $row) {
 			if (class_exists($row->type)) { 
 				$fields[] = new $row->type($row);
-			} else echo "<p>need $row->type</p>";
+			}
 		}
 		
 		return $fields;

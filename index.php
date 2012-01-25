@@ -80,7 +80,7 @@ class Postyper {
 		// delete_option('postyper_version');
 	}
 	
-	function resgister_postype($postype) {
+	function register_postype($postype) {
 	}
 	
 	function register_field_type($className) {
@@ -398,7 +398,7 @@ require_once(dirname(__FILE__).'/postype.php');
 
 function postyper_register($postype) {
 	global $postyper; 
-	$postyper->resgister_postype($postype);
+	$postyper->register_postype($postype);
 }
 
 function postyper_register_field_type($className) {
