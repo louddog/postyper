@@ -142,35 +142,6 @@ class Postype {
 		foreach ($this->fields as $field) {
 			$field->save($post_id);
 		}
-		
-		return;
-
-			switch ($field->type) {
-				case 'date-time':
-					$date = strtotime($_POST[$name]['date']);
-					$time = strtotime($_POST[$name]['time']);
-					$new = 0;
-					if ($date && $time) {
-						$d = getdate($date);
-						$t = getdate($time);
-						$new = mktime($t['hours'], $t['minutes'], $t['seconds'], $d['mon'], $d['mday'], $d['year']);
-					}
-					break;
-					
-				case 'time-range':
-					$new = array(
-						'starts' => strtotime($_POST[$name]['starts']),
-						'ends' => strtotime($_POST[$name]['ends']),
-					);
-					break;
-					
-				case 'range':
-					$new = serialize(array(
-						'low' => $_POST[$name]['low'],
-						'high' => $_POST[$name]['high'],
-					));
-					break;
-			}
 	}
 	
 	public function options($post, $name) {
