@@ -7,9 +7,16 @@ Version: 0.1
 Author URI: http://postyper.louddog.com/
 */
 
-if (!defined('POSTYPER_VERSION')) define('POSTYPER_VERSION', '0.1');
+define('POSTYPER_VERSION', '0.1');
+define('POSTYPER_PATH', dirname(__FILE__));
 
 $postyper = new Postyper();
+
+require_once(POSTYPER_PATH.'/functions.php');
+require_once POSTYPER_PATH.'/type.php';
+require_once(POSTYPER_PATH.'/postype.php');
+foreach (glob(POSTYPER_PATH.'/types/*') as $path) require_once $path;
+
 class Postyper {
 	var $postypes = array();
 	var $field_types = array();
@@ -398,16 +405,4 @@ class Postyper {
 			return trim($var);
 		} else return $var;
 	}
-}
-
-require_once(dirname(__FILE__).'/postype.php');
-
-function postyper_register($postype) {
-	global $postyper; 
-	$postyper->register_postype($postype);
-}
-
-function postyper_register_field_type($className) {
-	global $postyper;
-	$postyper->register_field_type($className);
 }

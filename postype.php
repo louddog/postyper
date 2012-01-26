@@ -1,11 +1,5 @@
 <?php
 
-define('POSTYPE_PATH', dirname(__FILE__));
-require_once POSTYPE_PATH.'/type.php';
-foreach (glob(POSTYPE_PATH.'/types/*') as $path) {
-	require_once $path;
-}
-
 class Postype {
 	protected static $postypes = array();
 	
