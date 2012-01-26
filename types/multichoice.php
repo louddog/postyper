@@ -15,27 +15,27 @@ class PostypeMultiChoice extends PostypeField {
 		<?php if (count($this->options) < 6) { ?>
 			
 			<?php $count = 0; ?>
-			<?php foreach ($this->options as $val => $text) { ?>
+			<?php foreach ($this->options as $text) { ?>
 				<?php if ($count) echo "<br />"; ?>
 				<?php $id = "postyper_{$this->postype_field_id}_".$count++; ?>
 				<input
 					type="radio"
 					name="<?php echo $name; ?>"
 					id="<?php echo $id; ?>"
-					value="<?php echo esc_attr($val); ?>"
-					<?php if ($val == $value) echo 'checked'; ?>
+					value="<?php echo esc_attr($text); ?>"
+					<?php if ($text == $value) echo 'checked'; ?>
 				/>
 				<label for="<?php echo $id; ?>"><?php echo $text; ?></label>
 			<?php } ?>
 			
 		<?php } else { ?>
-		
+			
 			<select name="<?php echo $name; ?>">
 				<option value=""></option>
-				<?php foreach ($this->options as $val => $text) { ?>
+				<?php foreach ($this->options as $text) { ?>
 					<option
-						value="<?php echo esc_attr($val); ?>"
-						<?php if ($val == $value) echo 'selected'; ?>
+						value="<?php echo esc_attr($text); ?>"
+						<?php if ($text == $value) echo 'selected'; ?>
 					>
 						<?php echo $text; ?>
 					</option>

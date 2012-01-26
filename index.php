@@ -201,7 +201,9 @@ class Postyper {
 						<tr class="postyper_no_fields"><td colspan="5">There aren't yet any fields for this type.  <a href="#" class="postyper_add_field">Add</a> the first one now.</td></tr>
 
 					<?php } else foreach ($postype->fields as $ndx => $field) { ?>
-
+						
+						<?php $field_type = get_class($field); ?>
+						
 						<tr rel="<?php echo $ndx; ?>">
 							<td class="label">
 								<input type="hidden" name="fields[<?php echo $ndx; ?>][postype_field_id]" value="<?php echo $field->postype_field_id; ?>" />
@@ -214,8 +216,11 @@ class Postyper {
 
 							<td class="type">
 								<select name="fields[<?php echo $ndx; ?>][type]" id="postyer_type">
-									<?php foreach (Postyper::$types as $type) { ?>
-										<option value="<?php echo esc_attr($type); ?>" <?php if ($type == $field->type) echo 'selected'; ?>>
+									<?php foreach ($this->field_types as $type => $attrs) { ?>
+										<option
+											value="<?php echo esc_attr($attrs['className']); ?>"
+											<?php if ($field_type == $attrs['className']) echo 'selected'; ?>
+										>
 											<?php echo $type; ?>
 										</option>
 									<?php } ?>
@@ -227,7 +232,7 @@ class Postyper {
 							</td>
 
 							<td class="options">
-								<?php if (in_array($field->type, array('radio', 'select'))) { ?>
+								<?php if (in_array($field_type, array('PostypeMultiChoice'))) { ?>
 									<?php if (is_array($field->options)) foreach ($field->options as $option) { ?>
 										<input type="text" name="fields[<?php echo $ndx; ?>][options][]" value="<?php echo esc_attr($option); ?>" />
 									<?php } ?>
@@ -255,8 +260,8 @@ class Postyper {
 
 							<td class="type">
 								<select name="fields[new][type]">
-									<?php foreach (Postyper::$types as $type) { ?>
-										<option value="<?php echo esc_attr($type); ?>">
+									<?php foreach ($this->field_types as $type => $attrs) { ?>
+										<option value="<?php echo esc_attr($attrs['className']); ?>">
 											<?php echo $type; ?>
 										</option>
 									<?php } ?>
@@ -333,6 +338,7 @@ class Postyper {
 						'type' => $field['type'],
 						'description' => $field['description'],
 						'options' => serialize($options),
+						'context' => 'normal',
 					);
 					
 					if (is_numeric($field['postype_field_id'])) {
