@@ -294,18 +294,32 @@ class Postyper {
 				</div>
 				
 				<p class="submit"><input type="button" class="postyper_add_field" value="add field" /></p>
-
-				<p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes"></p>
+				<p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes" /></p>
+				<p class="submit"><input type="submit" name="delete" class="button-secondary" value="Delete Postype" /></p>
 			</form>
 		</div>
 	<?php }
 	
 	function save_postype() {
-		if (isset($_POST['postyper_save_nonce']) && wp_verify_nonce($_POST['postyper_save_nonce'], plugin_basename(__FILE__))) {
-			global $wpdb;
-			$post = stripslashes_deep($_POST);
-			$post['fields'] = $this->trim_deep($post['fields']);
-			$postype = new Postype($post['postype_id']);
+		if (!isset($_POST['postyper_save_nonce'])) return;
+		if (!wp_verify_nonce($_POST['postyper_save_nonce'], plugin_basename(__FILE__))) return;
+
+		global $wpdb;
+
+		$post = stripslashes_deep($_POST);
+		$post['fields'] = $this->trim_deep($post['fields']);
+		$postype = new Postype($post['postype_id']);
+		
+		if (isset($_POST['delete'])) {
+			$postype_id = $_POST['postype_id'];
+			if (!is_numeric($postype_id)) return;
+			
+			$wpdb->query($wpdb->prepare("DELETE FROM $wpdb->postypes WHERE postype_id = %d", $postype_id));
+			$wpdb->query($wpdb->prepare("DELETE FROM $wpdb->postype_fields WHERE postype_id = %d", $postype_id));
+			
+			$this->add_admin_notice($postype->singular." postype deleted.");
+			wp_redirect(admin_url("admin.php?page=postyper"), 302);
+		} else {
 			
 			$postype_data = array(
 				'slug' => trim($post['slug']),
