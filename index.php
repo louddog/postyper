@@ -295,7 +295,7 @@ class Postyper {
 				
 				<p class="submit"><input type="button" class="postyper_add_field" value="add field" /></p>
 				<p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes" /></p>
-				<p class="submit"><input type="submit" name="delete" class="button-secondary" value="Delete Postype" /></p>
+				<p class="submit"><input type="submit" name="delete" class="button-secondary postyper_delete_postype" value="Delete Postype" /></p>
 			</form>
 		</div>
 	<?php }

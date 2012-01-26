@@ -33,4 +33,8 @@ jQuery(function($) {
 		}
 		return false;
 	});
+	
+	$('.postyper_delete_postype').click(function() {
+		return confirm("Are you sure?  This can't be undone.  Your posts' information will not be deleted, but the definition will, so you will not be able to access the information.");
+	});
 });
