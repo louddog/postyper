@@ -225,7 +225,6 @@ class Postyper {
 			
 			if (count($delete_field_ids)) {
 				$wpdb->query("DELETE FROM $wpdb->postype_fields WHERE postype_field_id IN (".implode(',', $delete_field_ids).")");
-				// TODO: Should we delete all meta data using these fields?  I'm thinking no, for now.
 			}
 
 			$this->add_admin_notice($postype_data['singular']." postype saved.");
