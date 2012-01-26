@@ -364,7 +364,7 @@ class Postyper {
 			}
 
 			$this->add_admin_notice($postype->singular." postype saved.");
-			wp_redirect(admin_url("admin.php?page=postyper_".$postype->slug), 302);
+			wp_redirect(admin_url("admin.php?page=postyper_".$postype_data['slug']), 302);
 		}
 	}
 	
