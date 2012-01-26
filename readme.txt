@@ -12,7 +12,7 @@ Create custom post types through the admin system.
 
 = Custom Post Types =
 
-WordPress can be more than just a blog.  By default, WordPress allows you to create blog posts and pages (and links, and comments,...).  But it can do more than that.  With a little elbow grease, you can put all kinds of different information.  *Blog post* and *page* are two different types of *posts*.  WordPress also allows you to create *custom post types*.  Your site could have the post type *employee*, or *product*, or *movie*, or *super her*.
+WordPress can be more than just a blog.  By default, WordPress allows you to create blog posts and pages (and links, and comments,...).  But it can do more than that.  With a little elbow grease, you can put in all kinds of different information.  *Blog post* and *page* are two different types of *posts*.  WordPress also allows you to create *custom post types*.  Your site could have the post type *employee*, or *product*, or *movie*, or *super hero*.
 
 Normally, you need to be a code monkey to pull this off.  If requires quite a bit of programming.  **Postyper** aims to remedy that.  It provides you with an interface to define your own custom post types, without the computer science degree.
 
@@ -20,12 +20,12 @@ Once you have your custom post types defined, you'll need to work on a way to di
 
 = For Template Developers =
 
-Postyper uses WordPress's native post meta system.  So all custom information entered by editors can be retrieved using the `get_post_meta()` or `get_post_custom()` functions.  You can also use the WordPress hierarchy to create templates for each post type, including single-*postype*.php, archive-*postype*.php, etc.
+Postyper uses WordPress's native post meta system.  So all custom information entered by editors can be retrieved using the [get_post_meta()](http://codex.wordpress.org/Function_Reference/get_post_meta) or [get_post_custom()](http://codex.wordpress.org/Function_Reference/get_post_custom) functions.  You can also use the WordPress hierarchy to create templates for each post type, including single-*postype*.php, archive-*postype*.php, etc.
 
 == Installation ==
 
-1. Upload `postyper` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Upload the `postyper` directory to the `/wp-content/plugins/` directory.
+1. Activate the plugin through the 'Plugins' menu in WordPress.
 
 == Frequently Asked Questions ==
 
