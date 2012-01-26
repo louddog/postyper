@@ -1,6 +1,5 @@
 === Plugin Name ===
 Contributors: mattdeclaire
-Donate link: http://example.com/
 Tags: custom post types, admin
 Requires at least: 3.3.1
 Tested up to: 3.3.1
@@ -29,7 +28,7 @@ Postyper uses WordPress's native post meta system.  So all custom information en
 
 == Frequently Asked Questions ==
 
-= How does Postyper store post options? =
+= How does Postyper store post information? =
 
 Postyper uses WordPress's native post meta system.  All fields that you add to your post types ultimately result in the creation of post meta on the post type.  So, using this data in your template works just like normal.  You aren't locked into any proprietary PHP calls.
 
