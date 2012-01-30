@@ -146,7 +146,7 @@ class Postyper {
 	
 	function save_postype() {
 		if (!isset($_POST['postyper_save_nonce'])) return;
-		if (!wp_verify_nonce($_POST['postyper_save_nonce'], plugin_basename(__FILE__))) die('test');
+		if (!wp_verify_nonce($_POST['postyper_save_nonce'], plugin_basename(__FILE__))) return;
 
 		global $wpdb;
 
