@@ -43,7 +43,7 @@ Uninstalling Postyer will remove the mechanism for defining your custom post typ
 
 == Future Changes ==
 
-We're excited about the potential of Postyper and will continue to develop it's functionality.  Future improvements include:
+We're excited about the potential of Postyper and will continue to develop its functionality.  Future improvements include:
 
 1. Improved field definition UI.
 1. Shortcodes for displaying meta field information.
