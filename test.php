@@ -5,6 +5,7 @@ new Postype(array(
 	'archive' => 'departments',
 ));
 
+// TODO: fix values
 new Postype(array(
 	'slug' => 'employee',
 	'archive' => 'employees',
