@@ -24,9 +24,9 @@ class Postype {
 	var $fields = array();
 	var $taxonomies = array();
 
-	function __construct($options) {
+	function __construct($options = false) {
 		global $wpdb;
-		$register = true;
+		$register = false;
 		$where = false;
 		
 		if (is_numeric($options)) $where = "postype_id = %d";
@@ -40,17 +40,19 @@ class Postype {
 				$this->singular = $postype->singular;
 				$this->plural = $postype->plural;
 				$this->fields = PostypeField::get_fields($this->id);
-			} else $register = false;
-		} else {
+				$register = true;
+			}
+		} else if (is_array($options)) {
 			foreach ($options as $option => $value) {
 				if (property_exists($this, $option)) {
 					$this->$option = $value;
 				}
 			}
+			$register = true;
 		}
 		
 		if (!$this->singular) $this->singular = ucwords($this->slug);
-		if (!$this->plural) $this->plural = $this->singular.'s';
+		if (!$this->plural && !empty($this->singular)) $this->plural = $this->singular.'s';
 		
 		if ($register) {
 			self::$postypes[$postype->slug] = $this;

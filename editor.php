@@ -1,6 +1,11 @@
 <?php if (!defined('POSTYPER_VERSION')) die('do not load directly'); // included from within Postyper::postype_settings() ?>
 
-<?php $postype = $this->postypes[str_replace('postyper_', '', $_GET['page'])]; ?>
+<?php
+	$slug = str_replace('postyper_', '', $_GET['page']);
+	$postype = array_key_exists($slug, $this->postypes)
+		? $this->postypes[$slug]
+		: new Postype();
+?>
 
 <div class="wrap">
 	<div id="icon-options-general" class="icon32"><br /></div>
