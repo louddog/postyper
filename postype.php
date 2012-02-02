@@ -1,7 +1,7 @@
 <?php
 
 class Postype {
-	protected static $postypes = array();
+	static $postypes = array();
 	
 	var $id = 0;
 
