@@ -26,47 +26,43 @@ class Postype {
 
 	function __construct($options = false) {
 		global $wpdb;
-		$register = false;
-		$where = false;
 		
-		if (is_numeric($options)) $where = "postype_id = %d";
-		else if (is_string($options)) $where = "slug = %s";
-		
-		if ($where) {
-			if ($postype = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->postypes WHERE $where", $options))) {
-				$this->id = $postype->postype_id;
-				$this->slug = $postype->slug;
-				$this->archive = $postype->archive;
-				$this->singular = $postype->singular;
-				$this->plural = $postype->plural;
-				$this->fields = PostypeField::get_fields($this->id);
-				$register = true;
-			}
-		} else if (is_array($options)) {
-			foreach ($options as $option => $value) {
-				if (property_exists($this, $option)) {
-					$this->$option = $value;
+		if ($options) {
+			if (is_array($options)) {
+				foreach ($options as $option => $value) {
+					if (property_exists($this, $option)) $this->$option = $value;
+				}
+			} else {
+				$where = is_numeric($options) ? "postype_id = %d" : "slug = %s";
+				$row = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->postypes WHERE $where", $options));
+				if ($row) {
+					$this->id = $row->postype_id;
+					$this->slug = $row->slug;
+					$this->archive = $row->archive;
+					$this->singular = $row->singular;
+					$this->plural = $row->plural;
+					$this->fields = PostypeField::get_fields($row->postype_id);
 				}
 			}
-			$register = true;
-		}
-		
-		if (!$this->singular) $this->singular = ucwords($this->slug);
-		if (!$this->plural && !empty($this->singular)) $this->plural = $this->singular.'s';
-		
-		if ($register) {
-			self::$postypes[$postype->slug] = $this;
-			add_action('init', array(&$this, 'register'));
 			
-			add_action('admin_enqueue_scripts', array(&$this, 'includes'));
-			add_action('admin_init', array(&$this, 'meta_boxes'));
-			add_action('save_post', array(&$this, 'save_post'));
-			add_action('trash_post', array(&$this, 'trash_post'));
-			
-			add_action('manage_edit-'.$this->slug.'_columns', array(&$this, 'columns'));
-			add_action('manage_posts_custom_column', array(&$this, 'column'));
-			add_filter('manage_edit'.$this->slug.'_sortable_columns', array(&$this, 'column_sort'));
-			add_action('request', array(&$this, 'column_orderby'));
+			if ($this->slug) {
+				self::$postypes[$this->slug] = $this;
+
+				if (!$this->singular) $this->singular = ucwords($this->slug);
+				if (!$this->plural && !empty($this->singular)) $this->plural = $this->singular.'s';
+
+				add_action('init', array(&$this, 'register'));
+
+				add_action('admin_enqueue_scripts', array(&$this, 'includes'));
+				add_action('admin_init', array(&$this, 'meta_boxes'));
+				add_action('save_post', array(&$this, 'save_post'));
+				add_action('trash_post', array(&$this, 'trash_post'));
+
+				add_action('manage_edit-'.$this->slug.'_columns', array(&$this, 'columns'));
+				add_action('manage_posts_custom_column', array(&$this, 'column'));
+				add_filter('manage_edit'.$this->slug.'_sortable_columns', array(&$this, 'column_sort'));
+				add_action('request', array(&$this, 'column_orderby'));
+			}
 		}
 	}
 
