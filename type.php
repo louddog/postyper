@@ -75,7 +75,7 @@ abstract class PostypeField {
 	
 	function save($post_id) {
 		$old = get_post_meta($post_id, $this->name, true);
-		$new = $this->new_value();;
+		$new = $this->new_value();
         if ($new != $old) update_post_meta($post_id, $this->name, $new);
 	}
 	
