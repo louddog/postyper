@@ -17,8 +17,8 @@ class PostypeRange extends PostypeField {
 			$value = $this->output_value($post_id);
 			$min = isset($this->options['min']) ? $this->options['min'] : 0;
 			$max = isset($this->options['max']) ? $this->options['max'] : 100;
-			$low = isset($value['low']) ? $value['low'] : $this->options['min'];
-			$high = isset($value['high']) ? $value['high'] : $this->options['max'];
+			$low = isset($value['low']) ? $value['low'] : $min;
+			$high = isset($value['high']) ? $value['high'] : $max;
 		?>
 		
 		<input
