@@ -3,7 +3,7 @@
 postyper_register_field_type('PostypeTime');
 
 class PostypeTime extends PostypeField {
-	static $type = 'time';
+	var $type = 'time';
 	
 	function output_value($post_id) {
 		if ($value = get_post_meta($post_id, $this->name, true)) {
@@ -13,6 +13,6 @@ class PostypeTime extends PostypeField {
 	}
 	
 	function new_value() {
-		return strtotime($_POST['postype'][$this->postype_field_id]);
+		return strtotime(parent::new_value());
 	}
 }

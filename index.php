@@ -78,11 +78,10 @@ class Postyper {
 		update_option('postyper_version', POSTYPER_VERSION);
 	}
 	
+	// TODO: replace this using get_declared_classes() and ReflectionClass::isSubclassOf()
 	function register_field_type($className) {
-		$type = new ReflectionClass($className);
-		$this->field_types[$type->getStaticPropertyValue('type')] = array(
-			'className' => $className,
-		);
+		$type = new $className();
+		$this->field_types[$type->type] = $type;
 	}
 	
 	function register_saved_postypes() {
@@ -91,7 +90,7 @@ class Postyper {
 		foreach ($postype_ids as $postype_id) {
 			$postype = new Postype($postype_id);
 			$postype->register();
-			$this->postypes[] = $postype;
+			$this->postypes[$postype->slug] = $postype;
 		}
 	}
 	
@@ -151,7 +150,7 @@ class Postyper {
 		global $wpdb;
 
 		$post = stripslashes_deep($_POST);
-		$post['fields'] = $this->trim_deep($post['fields']);
+		$post['fields'] = deep_trim($post['fields']);
 		$postype = new Postype($post['postype_id']);
 		
 		if (isset($_POST['delete'])) {
@@ -247,17 +246,5 @@ class Postyper {
 			}
 			delete_option('postyper_notices');
 		}
-	}
-	
-	function trim_deep($var) {
-		if (is_array($var)) {
-			$array = array();
-			foreach ($var as $key => $value) {
-				$array[$key] = $this->trim_deep($value);
-			}
-			return $array;
-		} else if (is_string($var)) {
-			return trim($var);
-		} else return $var;
 	}
 }

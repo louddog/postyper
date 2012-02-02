@@ -3,24 +3,24 @@
 postyper_register_field_type('PostypeBoolean');
 
 class PostypeBoolean extends PostypeField {
-	static $type = 'boolean';
+	var $type = 'boolean';
 	
 	function output($post_id) { ?>
 		
 		<input
 			type="checkbox"
-			name="postype[<?php echo $this->postype_field_id; ?>]"
-			id="postype_field_<?php echo $this->postype_field_id; ?>"
+			name="postype[<?php echo $this->name; ?>]"
+			id="postype_field_<?php echo $this->name; ?>"
 			<?php if ($this->output_value($post_id)) echo "checked"; ?>
 		/>
 
-		<label for="postype_field_<?php echo $this->postype_field_id; ?>">
+		<label for="postype_field_<?php echo $this->name; ?>">
 			<?php echo empty($this->description) ? $this->label : $this->description; ?>
 		</label>
 		
 	<?php }
 	
 	function new_value() {
-		return isset($_POST['postype'][$this->postype_field_id]);
+		return strlen(parent::new_value()) ? true : false;
 	}
 }

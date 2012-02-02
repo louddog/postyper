@@ -1,51 +1,63 @@
 <?php
 
 abstract class PostypeField {
-	static $type = false;
-
 	var $postype_field_id = false;
+	var $type = false;
 	var $label = '';
 	var $name = '';
 	var $description = '';
 	var $context = 'normal';
 	var $options = array();
 	
-	function __construct($field) {
-		print_r(self::$type);
-
-		$this->postype_field_id = $field->postype_field_id;
-		$this->name = $field->name;
-		$this->label = $field->label;
-		$this->description = $field->description;
-		$this->context = $field->context;
-		$this->options = unserialize($field->options);
+	function __construct($options = array()) {		
+		foreach ($options as $option => $value) {
+			if (property_exists($this, $option)) {
+				$this->$option = $value;
+			}
+		}
 		
 		add_action('admin_enqueue_scripts', array(&$this, 'admin_enqueue_scripts'));
 	}
 	
-	function admin_enqueue_scripts() {
-		// do nothing
-	}
-	
-	static function get_fields($postype_id) {
-		global $wpdb;
-		$rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM $wpdb->postype_fields WHERE postype_id = %d", $postype_id));
+	/*	Factory method for creating an array of PostypeFields
+		If $args is a number, the function pulls fields for the postype with the ID $args
+		Otherwise, an array of field definitions is expected */
+	static function get_fields($args) {
+		global $postyper;
 		
-		$fields = array();
-		foreach ($rows as $row) {
-			if (class_exists($row->type)) { 
-				$fields[] = new $row->type($row);
-			}
+		if (is_numeric($args)) {
+			global $wpdb;
+			
+			$fields = $wpdb->get_results($wpdb->prepare(
+				"SELECT * FROM $wpdb->postype_fields WHERE postype_id = %d",
+				$args
+			), ARRAY_A);
+			
+			foreach ($fields as $ndx => $field) {
+				$fields[$ndx]['options'] = unserialize($field['options']);
+			}			
+		} else if (!is_array($args)) $fields = array();
+		
+		
+		$return_fields = array();
+		foreach ($fields as $field) {
+			if (!array_key_exists($field['type'], $postyper->field_types)) continue;
+			$className = get_class($postyper->field_types[$field['type']]);
+			$return_fields[] = new $className($field);
 		}
 		
-		return $fields;
+		return $return_fields;
+	}
+	
+	function admin_enqueue_scripts() {
+		// do nothing
 	}
 
 	function output($post_id) { ?>
 		
 		<input
 			type="text"
-			name="postype[<?php echo $this->postype_field_id; ?>]"
+			name="postype[<?php echo $this->name; ?>]"
 			value="<?php echo esc_attr($this->output_value($post_id)); ?>"
 		/>
 		
@@ -57,8 +69,8 @@ abstract class PostypeField {
 		return get_post_meta($post_id, $this->name, true);
 	}
 	
-	static function field_type_output() {
-		echo "<p>".self::$type."</p>";
+	function field_type_output() {
+		// do nothing
 	}
 	
 	function save($post_id) {
@@ -68,7 +80,7 @@ abstract class PostypeField {
 	}
 	
 	function new_value() {
-		return isset($_POST['postype'][$this->postype_field_id]) ? trim($_POST['postype'][$this->postype_field_id]) : '';
+		return isset($_POST['postype'][$this->name]) ? deep_trim($_POST['postype'][$this->name]) : '';
 	}
 	
 	function output_description() {

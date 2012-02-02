@@ -3,12 +3,12 @@
 postyper_register_field_type('PostypeMultiChoice');
 
 class PostypeMultiChoice extends PostypeField {
-	static $type = 'multi-choice';
+	var $type = 'multichoice';
 	
 	function output($post_id) { ?>
 
 		<?php
-			$name = "postype[$this->postype_field_id]";
+			$name = "postype[$this->name]";
 			$value = $this->output_value($post_id);
 		?>
 	
@@ -17,7 +17,7 @@ class PostypeMultiChoice extends PostypeField {
 			<?php $count = 0; ?>
 			<?php foreach ($this->options as $text) { ?>
 				<?php if ($count) echo "<br />"; ?>
-				<?php $id = "postyper_{$this->postype_field_id}_".$count++; ?>
+				<?php $id = "postyper_{$this->name}_".$count++; ?>
 				<input
 					type="radio"
 					name="<?php echo $name; ?>"

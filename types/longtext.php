@@ -3,11 +3,11 @@
 postyper_register_field_type('PostypeLongText');
 
 class PostypeLongText extends PostypeField {
-	static $type = 'long-text';
+	var $type = 'longtext';
 	
 	function output($post_id) { ?>
 		
-		<textarea class="postyper_longtext" name="postype[<?php echo $this->postype_field_id; ?>]"><?php
+		<textarea class="postyper_longtext" name="postype[<?php echo $this->name; ?>]"><?php
 			echo $this->output_value($post_id);
 		?></textarea>
 
@@ -15,7 +15,7 @@ class PostypeLongText extends PostypeField {
 		
 	<?php }
 	
-	static function field_type_output() { ?>
+	function field_type_output() { ?>
 		<style>
 			.postyper_longtext {
 				width: 100%;

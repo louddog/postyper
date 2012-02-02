@@ -3,7 +3,7 @@
 postyper_register_field_type('PostypeDate');
 
 class PostypeDate extends PostypeField {
-	static $type = 'date';
+	var $type = 'date';
 	
 	function admin_enqueue_scripts() {
 		wp_enqueue_script('jquery-ui-datepicker');
@@ -14,7 +14,7 @@ class PostypeDate extends PostypeField {
 		<input
 			type="text"
 			class="postyper_date"
-			name="postype[<?php echo $this->postype_field_id; ?>]"
+			name="postype[<?php echo $this->name; ?>]"
 			value="<?php echo esc_attr($this->output_value($post_id)); ?>"
 		/>
 
@@ -31,14 +31,14 @@ class PostypeDate extends PostypeField {
 	}
 	
 	function new_value() {
-		if ($value = strtotime($_POST['postype'][$this->postype_field_id])) {
+		if ($value = strtotime(parent::new_value())) {
 			$d = getdate($value);
 			$value = mktime(0, 0, 0, $d['mon'], $d['mday'], $d['year']);
 		}
 		return $value;
 	}
 	
-	static function field_type_output() { ?>
+	function field_type_output() { ?>
 		<script>
 			jQuery(function($) {
 				$('.postyper_date').datepicker({

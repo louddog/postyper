@@ -4,12 +4,25 @@ class Postype {
 	protected static $postypes = array();
 	
 	var $id = 0;
-	var $slug = '';
-	var $archive = '';
-	var $singular = "";
-	var $plural = "";
+
+	var $slug = false;
+	var $singular = false;
+	var $plural = false;
+
+	var $public = true;
+	var $show_ui = true;
 	var $menu_position = 20;
+	var $capability_type = 'post';
+	var $hierarchical = false;
+	var $supports = array('title', 'editor', 'excerpt', 'thumbnail', 'custom-fields', 'comments', 'revisions', 'page-attributes');
+	var $has_archive = true;
+	var $archive = false;
+	var $with_front = false;
+	var $feeds = true;
+	var $pages = true;
+	
 	var $fields = array();
+	var $taxonomies = array();
 
 	function __construct($options) {
 		global $wpdb;
@@ -36,12 +49,22 @@ class Postype {
 			}
 		}
 		
+		if (!$this->singular) $this->singular = ucwords($this->slug);
+		if (!$this->plural) $this->plural = $this->singular.'s';
+		
 		if ($register) {
 			self::$postypes[$postype->slug] = $this;
 			add_action('init', array(&$this, 'register'));
+			
 			add_action('admin_enqueue_scripts', array(&$this, 'includes'));
 			add_action('admin_init', array(&$this, 'meta_boxes'));
 			add_action('save_post', array(&$this, 'save_post'));
+			add_action('trash_post', array(&$this, 'trash_post'));
+			
+			add_action('manage_edit-'.$this->slug.'_columns', array(&$this, 'columns'));
+			add_action('manage_posts_custom_column', array(&$this, 'column'));
+			add_filter('manage_edit'.$this->slug.'_sortable_columns', array(&$this, 'column_sort'));
+			add_action('request', array(&$this, 'column_orderby'));
 		}
 	}
 
@@ -59,16 +82,60 @@ class Postype {
 				'not_found' => "No $this->plural found",
 				'not_found_in_trash' => "No $this->plural found in Trash",
 			),
-			'public' => true,
+			'public' => $this->public,
+			'show_ui' => $this->show_ui,
 			'menu_position' => $this->menu_position,
-			'capability_type' => 'post',
-			'hierarchical' => false,
-			'supports' => array('title', 'editor', 'excerpt', 'thumbnail', 'custom-fields', 'comments', 'revisions'),
-			'has_archive' => $this->archive,
-			'rewrite' => array(
-				'slug' => $this->archive,
-				'with_front' => false,
+			'capability_type' => $this->capability_type,
+			'hierarchical' => $this->hierarchical,
+			'supports' => $this->supports,
+			'has_archive' => $this->has_archive,
+			'rewrite' => $this->has_archive || $this->archive
+				? array(
+					'slug' => $this->archive ? $this->archive : $this->slug,
+					'with_front' => $this->with_front,
+					'feeds' => $this->feeds,
+					'pages' => $this->pages,
+				)
+				: false,
+		));
+		
+		foreach ($this->taxonomies as $tax) {
+			$this->register_taxonomy($tax['name'], $tax);
+			// TODO: enable taxonomy meta
+		}
+	}
+	
+	function register_taxonomy($tax, $args) {
+		extract(shortcode_atts(array(
+			'singular' => "Item",
+			'plural' => "Items",
+			'rewrite' => false,
+		), $args));
+			
+		register_taxonomy($tax, $this->slug, array(
+			'labels' => array(
+				'name' => $plural,
+				'singular_name' => $singular,
+				'search_items' => "Search $plural",
+				// 'popular_items' => "Popular $plural", // seems to force the appearance of the tag cloud
+				'all_items' => "All $plural",
+				'parent_item' => "Parent $singular",
+				'parent_item_colon' => "Parent $singular:",
+				'edit_item' => "Edit $singular", 
+				'update_item' => "Update $singular",
+				'add_new_item' => "Add New $singular",
+				'new_item_name' => "New $singular Name",
+				'separate_items_with_commas' => "Separate $plural with commas",
+				'add_or_remove_items' => "Add or remove $plural",
+				'choose_from_most_used' => "Choose from the most used $plural",
+				'menu_name' => $singular,
 			),
+			'hierarchical' => true,
+			'rewrite' => $rewrite ? array(
+				'slug' => $rewrite,
+				'with_front' => false,
+				'hierarchical' => true,
+			) : false,
 		));
 	}
 	
@@ -119,8 +186,8 @@ class Postype {
 		
 		<?php
 			global $postyper;
-			foreach ($postyper->field_types as $type => $attrs) {
-				call_user_func(array($attrs['className'], 'field_type_output'));
+			foreach ($postyper->field_types as $type) {
+				$type->field_type_output();
 			}
 		?>
 		
@@ -138,17 +205,31 @@ class Postype {
 		}
 	}
 	
+	function trash_post($post_id) {
+		// TODO: trash post
+	}
+	
+	// TODO: handle columns
+	function columns($columns) {
+		return $columns;
+	}
+	
+	function column($column) {
+	}
+
+	function column_sort($columns) {
+		return $columns;
+	}
+	
+	function column_orderby($vars) {
+		return $vars;
+	}
+	
 	public function options($post, $name) {
 		$type = get_post_type($post);
 		foreach (self::$postypes[$type]->fields as $field) {
 			if ($field->name == $name) return $field->options;
 		}
 		return false;
-	}
-	
-	public function label($post, $name, $alt = 'n/a') {
-		$options = self::options($post, $name);
-		$key = get_post_meta($post->ID, $name, true);
-		return $options && isset($options[$key]) ? $options[$key] : $alt;
 	}
 }

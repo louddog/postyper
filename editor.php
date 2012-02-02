@@ -1,4 +1,6 @@
-<?php $postype = new Postype(str_replace('postyper_', '', $_GET['page'])); ?>
+<?php if (!defined('POSTYPER_VERSION')) die('do not load directly'); // included from within Postyper::postype_settings() ?>
+
+<?php $postype = $this->postypes[str_replace('postyper_', '', $_GET['page'])]; ?>
 
 <div class="wrap">
 	<div id="icon-options-general" class="icon32"><br /></div>
@@ -32,7 +34,7 @@
 		<p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes"></p>
 
 		<h3>Fields</h3>
-
+		
 		<table class="postyper_fields">
 			<tr>
 				<th>Title</th>
@@ -48,8 +50,6 @@
 
 			<?php } else foreach ($postype->fields as $ndx => $field) { ?>
 				
-				<?php $field_type = get_class($field); ?>
-				
 				<tr rel="<?php echo $ndx; ?>">
 					<td class="label">
 						<input type="hidden" name="fields[<?php echo $ndx; ?>][postype_field_id]" value="<?php echo $field->postype_field_id; ?>" />
@@ -62,12 +62,12 @@
 
 					<td class="type">
 						<select name="fields[<?php echo $ndx; ?>][type]" id="postyer_type">
-							<?php foreach ($this->field_types as $type => $attrs) { ?>
+							<?php foreach ($this->field_types as $type) { ?>
 								<option
-									value="<?php echo esc_attr($attrs['className']); ?>"
-									<?php if ($field_type == $attrs['className']) echo 'selected'; ?>
+									value="<?php echo esc_attr($type->type); ?>"
+									<?php if ($field->type == $type->type) echo 'selected'; ?>
 								>
-									<?php echo $type; ?>
+									<?php echo $type->type; ?>
 								</option>
 							<?php } ?>
 						</select>
@@ -78,7 +78,7 @@
 					</td>
 
 					<td class="options">
-						<?php if (in_array($field_type, array('PostypeMultiChoice'))) { ?>
+						<?php if (in_array($field->type, array('multichoice'))) { ?>
 							<?php if (is_array($field->options)) foreach ($field->options as $option) { ?>
 								<input type="text" name="fields[<?php echo $ndx; ?>][options][]" value="<?php echo esc_attr($option); ?>" />
 							<?php } ?>
@@ -106,9 +106,9 @@
 
 					<td class="type">
 						<select name="fields[new][type]">
-							<?php foreach ($this->field_types as $type => $attrs) { ?>
-								<option value="<?php echo esc_attr($attrs['className']); ?>">
-									<?php echo $type; ?>
+							<?php foreach ($this->field_types as $type) { ?>
+								<option value="<?php echo esc_attr($type->type); ?>">
+									<?php echo $type->type; ?>
 								</option>
 							<?php } ?>
 						</select>

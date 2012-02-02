@@ -3,12 +3,12 @@
 postyper_register_field_type('PostypeDateTime');
 
 class PostypeDateTime extends PostypeField {
-	static $type = 'date-time';
+	var $type = 'datetime';
 	
 	function output($post_id) { ?>
 		
 		<?php
-			$name = "postype[$this->postype_field_id]";
+			$name = "postype[$this->name]";
 			$value = $this->output_value($post_id);
 		?>
 		
@@ -32,19 +32,21 @@ class PostypeDateTime extends PostypeField {
 	<?php }
 		
 	function new_value() {
-		$date = strtotime($_POST['postype'][$this->postype_field_id]['date']);
-		$time = strtotime($_POST['postype'][$this->postype_field_id]['time']);
-		$value = 0;
-		if ($date && $time) {
-			$d = getdate($date);
-			$t = getdate($time);
-			$value = mktime($t['hours'], $t['minutes'], $t['seconds'], $d['mon'], $d['mday'], $d['year']);
-		}
+		$value = parent::new_value();
+		$date = strtotime($value['date']);
+		$time = strtotime($value['time']);
 
-		return $value;
+		if (!$date || !$time) return 0;
+
+		$d = getdate($date);
+		$t = getdate($time);
+		return mktime(
+			$t['hours'], $t['minutes'], $t['seconds'],
+			$d['mon'], $d['mday'], $d['year']
+		);
 	}
 	
-	static function field_type_output() { ?>
+	function field_type_output() { ?>
 		<script>
 			jQuery(function($) {
 				$('.postyper_date_time').datepicker({

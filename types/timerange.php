@@ -3,13 +3,13 @@
 postyper_register_field_type('PostypeTimeRange');
 
 class PostypeTimeRange extends PostypeField {
-	static $type = 'time-range';
+	var $type = 'timerange';
 	
 	function output($post_id) { ?>
 		
 		<?php
-			$name = "postype[$this->postype_field_id]";
-			$id = "postype_range_$this->postype_field_id";
+			$name = "postype[$this->name]";
+			$id = "postype_range_$this->name";
 			$value = $this->output_value($post_id);
 		?>
 		
@@ -35,9 +35,10 @@ class PostypeTimeRange extends PostypeField {
 	}
 
 	function new_value() {
+		$value = parent::new_value();
 		return serialize(array(
-			'starts' => strtotime($_POST['postype'][$this->postype_field_id]['starts']),
-			'ends' => strtotime($_POST['postype'][$this->postype_field_id]['ends']),
+			'starts' => strtotime($value['starts']),
+			'ends' => strtotime($value['ends']),
 		));
 	}
 }

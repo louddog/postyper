@@ -3,7 +3,7 @@
 postyper_register_field_type('PostypeSlider');
 
 class PostypeSlider extends PostypeField {
-	static $type = 'slider';
+	var $type = 'slider';
 	
 	function admin_enqueue_scripts() {
 		wp_enqueue_script('jquery-ui-slider');
@@ -12,8 +12,8 @@ class PostypeSlider extends PostypeField {
 	function output($post_id) { ?>
 		
 		<?php
-			$name = "postype[$this->postype_field_id]";
-			$id = "postype_range_$this->postype_field_id";
+			$name = "postype[$this->name]";
+			$id = "postype_range_$this->name";
 			$value = get_post_meta($post_id, $this->name, true);
 			$min = isset($this->options['min']) ? $this->options['min'] : 0;
 			$max = isset($this->options['max']) ? $this->options['max'] : 100;
@@ -48,7 +48,7 @@ class PostypeSlider extends PostypeField {
 		
 	<?php }
 	
-	static function field_type_output() { ?>
+	function field_type_output() { ?>
 		<style>
 			.postyper_slider_value {
 				width: 50px;

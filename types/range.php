@@ -3,7 +3,7 @@
 postyper_register_field_type('PostypeRange');
 
 class PostypeRange extends PostypeField {
-	static $type = 'range';
+	var $type = 'range';
 	
 	function admin_enqueue_scripts() {
 		wp_enqueue_script('jquery-ui-slider');
@@ -12,8 +12,8 @@ class PostypeRange extends PostypeField {
 	function output($post_id) { ?>
 		
 		<?php
-			$name = "postype[$this->postype_field_id]";
-			$id = "postype_range_$this->postype_field_id";
+			$name = "postype[$this->name]";
+			$id = "postype_range_$this->name";
 			$value = $this->output_value($post_id);
 			$min = isset($this->options['min']) ? $this->options['min'] : 0;
 			$max = isset($this->options['max']) ? $this->options['max'] : 100;
@@ -61,7 +61,7 @@ class PostypeRange extends PostypeField {
 		return unserialize(get_post_meta($post_id, $this->name, true));
 	}
 	
-	static function field_type_output() { ?>
+	function field_type_output() { ?>
 		<style>
 			.postyper_range_values {
 				width: 50px;
@@ -100,9 +100,10 @@ class PostypeRange extends PostypeField {
 	<?php }
 	
 	function new_value() {
+		$value = parent::new_value();
 		return serialize(array(
-			'low' => $_POST['postype'][$this->postype_field_id]['low'],
-			'high' => $_POST['postype'][$this->postype_field_id]['high'],
+			'low' => $value['low'],
+			'high' => $value['high'],
 		));
 	}
 }
