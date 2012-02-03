@@ -11,7 +11,9 @@
 	<div id="icon-options-general" class="icon32"><br /></div>
 	<h2>Custom Post Type: <em><?php echo $postype->singular; ?></em></h2>
 
-	<form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
+	<form id="postyper_form" action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
+		
+		<div class="errors"></div>
 
 		<?php wp_nonce_field($nonce, 'postyper_save_nonce'); ?>
 		
@@ -36,109 +38,85 @@
 			</tr>
 		</table>
 
-		<p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes"></p>
+		<p class="submit">
+			<input type="submit" name="submit" class="button-primary" value="Save Changes">
+			<input type="submit" name="delete" class="button-secondary postyper_delete" value="Delete Postype" />
+		</p>
 
 		<h3>Fields</h3>
 		
-		<table class="postyper_fields">
-			<tr>
-				<th>Title</th>
-				<th>Name</th>
-				<th>Type</th>
-				<th>Description</th>
-				<th>Options</th>
-			</tr>
-
-			<?php if (empty($postype->fields)) { ?>
-
-				<tr class="postyper_no_fields"><td colspan="5">There aren't yet any fields for this type.  <a href="#" class="postyper_add_field">Add</a> the first one now.</td></tr>
-
-			<?php } else foreach ($postype->fields as $ndx => $field) { ?>
-				
-				<tr rel="<?php echo $ndx; ?>">
-					<td class="label">
-						<input type="hidden" name="fields[<?php echo $ndx; ?>][postype_field_id]" value="<?php echo $field->postype_field_id; ?>" />
-						<input type="text" name="fields[<?php echo $ndx; ?>][label]" value="<?php echo esc_attr($field->label); ?>" />
-					</td>
-
-					<td class="name">
-						<input type="text" name="fields[<?php echo $ndx; ?>][name]" value="<?php echo esc_attr($field->name); ?>" />
-					</td>
-
-					<td class="type">
-						<select name="fields[<?php echo $ndx; ?>][type]" id="postyer_type">
-							<?php foreach ($this->field_types as $type) { ?>
-								<option
-									value="<?php echo esc_attr($type->type); ?>"
-									<?php if ($field->type == $type->type) echo 'selected'; ?>
-								>
-									<?php echo $type->type; ?>
-								</option>
-							<?php } ?>
-						</select>
-					</td>
-
-					<td class="desc">
-						<input type="text" name="fields[<?php echo $ndx; ?>][description]" value="<?php echo esc_attr($field->description); ?>" />
-					</td>
-
-					<td class="options">
-						<?php if (in_array($field->type, array('multichoice'))) { ?>
-							<?php if (is_array($field->options)) foreach ($field->options as $option) { ?>
-								<input type="text" name="fields[<?php echo $ndx; ?>][options][]" value="<?php echo esc_attr($option); ?>" />
-							<?php } ?>
-							<a href="#" class="new">new</a>
+		<div class="postyper_fields">
+			<?php foreach (count($postype->fields) ? $postype->fields : array(new PostypeText) as $ndx => $field) { ?>
+				<div class="postyper_field <?php if (!$field->label) echo 'postyper_field_blank'; ?>">
+					<p class="summary">
+						<?php if ($field->label) { ?>
+							<span class="label"><?php echo $field->label; ?></span>
+							(<span class="name"><?php echo $field->name; ?></span>)
+							of type
+							<span class="type"><?php echo $field->type; ?></span>
 						<?php } ?>
-					</td>
+					</p>
+				
+					<div class="edit">
+						<p>
+							<label>Label</label> <input type="text" class="label" name="fields[<?php echo $ndx; ?>][label]" value="<?php echo esc_attr($field->label); ?>" /><br />
+							<span class="description">This is what WordPress editors will see in the post's edit form.</span>
+						</p>
+
+						<p>
+							<label>Name</label> <input type="text" class="name" name="fields[<?php echo $ndx; ?>][name]" value="<?php echo esc_attr($field->name); ?>" /><br />
+							<span class="description">This the field's variable name.  It's used in templates to display the post's information.</span><br />
+							<span class="description">Tip: Names that begin with "_" (underscore) do not show up in a post's Custom Fields box.</span><br />
+							<span class="postyper_type_warning">Be careful changing this.  Templates may depend on the value.</span>
+						</p>
+
+						<p>
+							<label>Type</label>
+							<select name="fields[<?php echo $ndx; ?>][type]" class="type">
+								<?php foreach ($this->field_types as $type) { ?>
+									<option
+										value="<?php echo esc_attr($type->type); ?>"
+										<?php if ($field->type == $type->type) echo 'selected'; ?>
+										>
+										<?php echo $type->type; ?>
+									</option>
+								<?php } ?>
+							</select><br /><?php // TODO: put a link to open a help page in a a new window ?>
+							<span class="description">This the field's type.</span>
+						</p>
 					
-					<td class="delete"><a href="#">x</a></td>
-				</tr>
+						<p>
+							<label>Description</label><br />
+							<textarea name="fields[<?php echo $ndx; ?>][description]"><?php echo $field->description; ?></textarea><br />
+							<span class="description">This text helps the WordPress editor know what this field is for.</span>
+						</p>
 
-			<?php } ?>
-			
-			<p class="tip">Tip: If you start a field's name with an underscore (_), then it will be hidden from the "Custom Fields" meta box.</p>
-
-			<tbody class="postyper_template" rel="row">
-				<tr>
-					<td class="label">
-						<input type="hidden" name="fields[new][postype_field_id]" />
-						<input type="text" name="fields[new][label]"  />
-					</td>
-
-					<td class="name">
-						<input type="text" name="fields[new][name]" />
-					</td>
-
-					<td class="type">
-						<select name="fields[new][type]">
-							<?php foreach ($this->field_types as $type) { ?>
-								<option value="<?php echo esc_attr($type->type); ?>">
-									<?php echo $type->type; ?>
-								</option>
+						<p class="options">
+							<label>Options</label>:
+							<?php foreach ($field->options as $key => $option) { ?>
+								<span class="option">
+									<?php if (!is_numeric($key)) { ?>
+										<span class="key">
+											(<?php echo $key; ?>)
+										</span>
+									<?php } ?>
+									<input type="hidden" name="fields[<?php echo $ndx; ?>]['options'][<?php echo is_numeric($key) ? '' : $key; ?>]" value="<?php echo esc_attr($option); ?>" />
+									<?php echo $option; ?>
+								</span>
 							<?php } ?>
-						</select>
-					</td>
-
-					<td class="desc">
-						<input type="text" name="fields[new][description]" />
-					</td>
-
-					<td class="options">
-						<a href="#" class="new">new</a>
-					</td>
+						</p>
 					
-					<td class="delete"><a href="#">x</a></td>
-				</tr>
-			</tbody>
+						<input type="hidden" name="fields[<?php echo $ndx; ?>][postype_field_id]" value="<?php echo $field->postype_field_id; ?>" />
 
-		</table>
-
-		<div class="postyper_template" rel="radio">
-			<input type="radio" /><label />
-		</div>
+						<button class="button-secondary postyper_delete">delete field</button>
+					</div> <!-- .edit -->
+				
+				</div> <!-- .postyper_field -->
+			<?php } ?>
 		
-		<p class="submit"><input type="button" class="postyper_add_field" value="add field" /></p>
+			<p class="submit"><input type="button" class="postyper_add_field" value="add field" /></p>
+		</div> <!-- .postyper_fields -->
+		
 		<p class="submit"><input type="submit" name="submit" class="button-primary" value="Save Changes" /></p>
-		<p class="submit"><input type="submit" name="delete" class="button-secondary postyper_delete_postype" value="Delete Postype" /></p>
 	</form>
 </div>

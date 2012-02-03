@@ -1,22 +1,45 @@
-.postyper_no_fields {
-	font-style: italic;
-	text-align: center;
-	background-color: #EEE;
+.postyper_field:first {
+	margin-top: 0;
 }
 
-.postyper_field_template {
+.postyper_field textarea {
+	width: 98%;
+	height: 4em;
+}
+
+.postyper_field {
+	margin-top: 3px;
+}
+
+.postyper_field_blank {
 	display: none;
 }
 
-.postyper_fields {
-	width: 100%;
+.postyper_field .summary {
+	margin: 0;
+	padding: 5px 10px;
+	border: 1px solid #CCC;
+	background-color: #F6F6F6;
 }
 
-.postyper_fields td {
-	white-space: nowrap;
+.postyper_field .summary:hover {
+	background-color: #EEE;
+	cursor: pointer;
 }
 
-.postyper_fields .desc,
-.postyper_fields .desc input {
-	width: 100%;
+.postyper_field .edit {
+	display: none;
+	margin-left: 5px;
+	padding: 5px 10px;
+	border: 1px solid #CCC;
+	border-top: 0;
+}
+
+.submit .postyper_delete {
+	color: #900;
+}
+
+.postyper_type_warning {
+	display: none;
+	color: #900;
 }

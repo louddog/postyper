@@ -170,6 +170,17 @@ class Postyper {
 				'singular' => trim($post['singular']),
 				'plural' => trim($post['plural']),
 			);
+			
+			// TODO: preserve values across error
+			if (empty($postype_data['slug'])) {
+				$this->add_admin_notice("Post types need a slug at the minimum.");
+				wp_redirect(admin_url("admin.php?page=postyper-new"), 302);
+				return; // blank post type
+			} else if (!$postype->id && array_key_exists($postype_data['slug'], $this->postypes)) {
+				$this->add_admin_notice("That slug is already in use.");
+				wp_redirect(admin_url("admin.php?page=postyper-new"), 302);
+				return; // dupe post type
+			}
 
 			if ($postype->id) {
 				$wpdb->update($wpdb->postypes, $postype_data, array('postype_id' => $postype->id));
