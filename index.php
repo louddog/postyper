@@ -213,6 +213,7 @@ class Postyper {
 						'type' => $field['type'],
 						'description' => $field['description'],
 						'options' => serialize($options),
+						'settings' => isset($field['settings']) ? serialize($field['settings']) : false,
 						'context' => 'normal',
 					);
 					

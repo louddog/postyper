@@ -7,11 +7,20 @@ abstract class PostypeField {
 	var $name = '';
 	var $description = '';
 	var $context = 'normal';
-	var $options = array();
+	var $options = false; // options are for lists of possible values, it subclass expects options, set to default (maybe empty array?)
+	var $settings = false; // settings are for specific named settings (set to array of defaults in subclass)
 	
-	function __construct($options = array()) {		
+	function __construct($options = array()) {	
 		foreach ($options as $option => $value) {
-			if (property_exists($this, $option)) {
+			if ($option == 'options') {
+				if (is_array($this->options)) $this->options = $value;
+			} else if ($option == 'settings') {
+				if ($this->settings) {
+					foreach ($this->settings as $key => $setting) {
+						$this->settings[$key]['value'] = $value[$key];
+					}
+				}
+			} else if (property_exists($this, $option)) {
 				$this->$option = $value;
 			}
 		}
@@ -35,6 +44,7 @@ abstract class PostypeField {
 			
 			foreach ($fields as $ndx => $field) {
 				$fields[$ndx]['options'] = unserialize($field['options']);
+				$fields[$ndx]['settings'] = unserialize($field['settings']);
 			}			
 		} else if (!is_array($args)) $fields = array();
 		

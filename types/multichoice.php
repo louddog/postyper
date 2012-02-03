@@ -4,6 +4,7 @@ postyper_register_field_type('PostypeMultiChoice');
 
 class PostypeMultiChoice extends PostypeField {
 	var $type = 'multichoice';
+	var $options = array();
 	
 	function output($post_id) { ?>
 

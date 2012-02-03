@@ -4,6 +4,14 @@ postyper_register_field_type('PostypeSlider');
 
 class PostypeSlider extends PostypeField {
 	var $type = 'slider';
+	var $settings = array(
+		'min' => array(
+			'value' => 0
+		),
+		'max' => array(
+			'value' => 100
+		),
+	);
 	
 	function admin_enqueue_scripts() {
 		wp_enqueue_script('jquery-ui-slider');
