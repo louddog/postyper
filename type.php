@@ -47,7 +47,7 @@ abstract class PostypeField {
 				$fields[$ndx]['settings'] = unserialize($field['settings']);
 			}			
 		} else if (!is_array($args)) $fields = array();
-		
+		else $fields = $args;
 		
 		$return_fields = array();
 		foreach ($fields as $field) {

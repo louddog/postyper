@@ -30,7 +30,8 @@ class Postype {
 		if ($options) {
 			if (is_array($options)) {
 				foreach ($options as $option => $value) {
-					if (property_exists($this, $option)) $this->$option = $value;
+					if ($option == 'fields') $this->fields = PostypeField::get_fields($value);
+					else if (property_exists($this, $option)) $this->$option = $value;
 				}
 			} else {
 				$where = is_numeric($options) ? "postype_id = %d" : "slug = %s";
