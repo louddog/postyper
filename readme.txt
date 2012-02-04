@@ -38,6 +38,10 @@ Uninstalling Postyer will remove the mechanism for defining your custom post typ
 
 == Changelog ==
 
+= 0.2 =
+* Drastically improved field editing UI.
+* Added "post" as field type.  You can now create a field for a type that allows you to select a post of another type.
+
 = 0.1 =
 * This first version works, but is beta.  Feel free to use it, but you should expect changes before we hit 1.0.
 
@@ -45,7 +49,6 @@ Uninstalling Postyer will remove the mechanism for defining your custom post typ
 
 We're excited about the potential of Postyper and will continue to develop its functionality.  Future improvements include:
 
-1. Improved field definition UI.
 1. Shortcodes for displaying meta field information.
 1. More field types.
 1. Unicorns.

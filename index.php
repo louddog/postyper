@@ -3,11 +3,11 @@
 Plugin Name: Postyper
 Description: Create custom post types through the admin system.
 Author: Loud Dog
-Version: 0.1
+Version: 0.2
 Author URI: http://postyper.louddog.com/
 */
 
-define('POSTYPER_VERSION', '0.1');
+define('POSTYPER_VERSION', '0.2');
 define('POSTYPER_PATH', dirname(__FILE__));
 
 $postyper = new Postyper();
@@ -97,10 +97,10 @@ class Postyper {
 	function includes() {
 		$dir = plugin_dir_url(__FILE__);
 		
-		wp_register_script('postyper_settings', $dir.'js/settings.js', array('jquery'), '0.1', true);
+		wp_register_script('postyper_settings', $dir.'js/settings.js', array('jquery'), '0.2', true);
 		wp_enqueue_script('postyper_settings');
 		
-		wp_register_style('postyper_settings', $dir.'css/settings.css', false, '0.1');
+		wp_register_style('postyper_settings', $dir.'css/settings.css', false, '0.2');
 		wp_enqueue_style('postyper_settings');
 	}
 
