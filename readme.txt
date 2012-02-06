@@ -38,6 +38,9 @@ Uninstalling Postyer will remove the mechanism for defining your custom post typ
 
 == Changelog ==
 
+= 0.3 =
+* Fixed activation bug.
+
 = 0.2 =
 * Drastically improved field editing UI.
 * Added "post" as field type.  You can now create a field for a type that allows you to select a post of another type.
@@ -49,6 +52,8 @@ Uninstalling Postyer will remove the mechanism for defining your custom post typ
 
 We're excited about the potential of Postyper and will continue to develop its functionality.  Future improvements include:
 
+1. New field type: multi-post
+1. Group fields.  For instance, with type post types, actor and movie, one would want to select with actors are in the movie, and for each actor, the name of the character they played.
 1. Shortcodes for displaying meta field information.
 1. More field types.
 1. Unicorns.

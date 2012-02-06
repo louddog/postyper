@@ -32,8 +32,6 @@ abstract class PostypeField {
 		If $args is a number, the function pulls fields for the postype with the ID $args
 		Otherwise, an array of field definitions is expected */
 	static function get_fields($args) {
-		global $postyper;
-		
 		if (is_numeric($args)) {
 			global $wpdb;
 			
@@ -49,10 +47,11 @@ abstract class PostypeField {
 		} else if (!is_array($args)) $fields = array();
 		else $fields = $args;
 		
+		$field_types = Postyper::field_types();
 		$return_fields = array();
 		foreach ($fields as $field) {
-			if (!array_key_exists($field['type'], $postyper->field_types)) continue;
-			$className = get_class($postyper->field_types[$field['type']]);
+			if (!array_key_exists($field['type'], $field_types)) continue;
+			$className = get_class($field_types[$field['type']]);
 			$return_fields[] = new $className($field);
 		}
 		

@@ -1,6 +1,6 @@
 <?php
 
-postyper_register_field_type('PostypeTimeRange');
+Postyper::register_field_type('PostypeTimeRange');
 
 class PostypeTimeRange extends PostypeField {
 	var $type = 'timerange';

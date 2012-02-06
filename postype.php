@@ -184,8 +184,7 @@ class Postype {
 		</table>
 		
 		<?php
-			global $postyper;
-			foreach ($postyper->field_types as $type) {
+			foreach (Postyper::field_types() as $type) {
 				$type->field_type_output();
 			}
 		?>

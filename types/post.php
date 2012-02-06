@@ -1,6 +1,6 @@
 <?php
 
-postyper_register_field_type('PostypePost');
+Postyper::register_field_type('PostypePost');
 
 class PostypePost extends PostypeField {
 	var $type = 'post';

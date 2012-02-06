@@ -1,6 +1,6 @@
 <?php
 
-postyper_register_field_type('PostypeMoney');
+Postyper::register_field_type('PostypeMoney');
 
 class PostypeMoney extends PostypeField {
 	var $type = 'money';

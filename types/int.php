@@ -1,6 +1,6 @@
 <?php
 
-postyper_register_field_type('PostypeInt');
+Postyper::register_field_type('PostypeInt');
 
 class PostypeInt extends PostypeField {
 	var $type = 'int';

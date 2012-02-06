@@ -1,6 +1,6 @@
 <?php
 
-postyper_register_field_type('PostypeMultiChoice');
+Postyper::register_field_type('PostypeMultiChoice');
 
 class PostypeMultiChoice extends PostypeField {
 	var $type = 'multichoice';

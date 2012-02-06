@@ -1,10 +1,5 @@
 <?php
 
-function postyper_register_field_type($className) {
-	global $postyper;
-	$postyper->register_field_type($className);
-}
-
 if (!function_exists('deep_trim')) {
 	function deep_trim($var) {
 		if (is_array($var)) {

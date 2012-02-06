@@ -1,6 +1,6 @@
 <?php
 
-postyper_register_field_type('PostypeSlider');
+Postyper::register_field_type('PostypeSlider');
 
 class PostypeSlider extends PostypeField {
 	var $type = 'slider';

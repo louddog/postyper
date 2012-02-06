@@ -1,6 +1,6 @@
 <?php
 
-postyper_register_field_type('PostypeDate');
+Postyper::register_field_type('PostypeDate');
 
 class PostypeDate extends PostypeField {
 	var $type = 'date';

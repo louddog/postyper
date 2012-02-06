@@ -1,6 +1,6 @@
 <?php
 
-postyper_register_field_type('PostypeLongText');
+Postyper::register_field_type('PostypeLongText');
 
 class PostypeLongText extends PostypeField {
 	var $type = 'longtext';

@@ -1,6 +1,6 @@
 <?php
 
-postyper_register_field_type('PostypeBoolean');
+Postyper::register_field_type('PostypeBoolean');
 
 class PostypeBoolean extends PostypeField {
 	var $type = 'boolean';

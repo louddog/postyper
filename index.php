@@ -3,14 +3,12 @@
 Plugin Name: Postyper
 Description: Create custom post types through the admin system.
 Author: Loud Dog
-Version: 0.2
+Version: 0.3
 Author URI: http://postyper.louddog.com/
 */
 
-define('POSTYPER_VERSION', '0.2');
+define('POSTYPER_VERSION', '0.3');
 define('POSTYPER_PATH', dirname(__FILE__));
-
-$postyper = new Postyper();
 
 require_once POSTYPER_PATH.'/functions.php';
 require_once POSTYPER_PATH.'/type.php';
@@ -18,6 +16,8 @@ require_once POSTYPER_PATH.'/postype.php';
 foreach (glob(POSTYPER_PATH.'/types/*') as $path) require_once $path;
 
 class Postyper {
+	static $postyper = null;
+	
 	var $postypes = array();
 	var $field_types = array();
 	var $postype = null;
@@ -40,16 +40,17 @@ class Postyper {
 	}
 	
 	function install() {
-		global $wpdb;
 		require_once ABSPATH.'wp-admin/includes/upgrade.php';
+
+		global $wpdb;
 		
 		dbDelta(
 			"CREATE TABLE $wpdb->postypes (
-				`postype_id` bigint(20) unsigned NOT NULL auto_increment,
-				`slug` varchar(256) default NULL,
-				`archive` varchar(255) default NULL,
-				`singular` varchar(255) default NULL,
-				`plural` varchar(255) default NULL,
+				postype_id bigint(20) unsigned NOT NULL auto_increment,
+				slug varchar(256) default NULL,
+				archive varchar(255) default NULL,
+				singular varchar(255) default NULL,
+				plural varchar(255) default NULL,
 				PRIMARY KEY  (postype_id),
 				KEY slug (slug)
 			) $wpdb->collate;"
@@ -57,19 +58,15 @@ class Postyper {
 	
 		dbDelta(
 			"CREATE TABLE $wpdb->postype_fields (
-				`postype_field_id` bigint(20) unsigned NOT NULL auto_increment,
-				`postype_id` bigint(20) unsigned NOT NULL,
-				`name` varchar(255) default NULL,
-				`type` varchar(255) default NULL,
-				`context{% if  condition %}
-				 
-				{% else %}
-				 what to do else
-				{% endif %}
-				` varchar(255) default NULL,
-				`label` varchar(255) default NULL,
-				`description` longtext NOT NULL,
-				`options` longtext NOT NULL,
+				postype_field_id bigint(20) unsigned NOT NULL auto_increment,
+				postype_id bigint(20) unsigned NOT NULL,
+				name varchar(255) default NULL,
+				type varchar(255) default NULL,
+				context varchar(255) default NULL,
+				label varchar(255) default NULL,
+				description longtext NOT NULL,
+				options longtext NOT NULL,
+				settings longtext NOT NULL,
 				PRIMARY KEY  (postype_field_id),
 				KEY postype_id (postype_id)
 			) $wpdb->collate;"
@@ -78,10 +75,24 @@ class Postyper {
 		update_option('postyper_version', POSTYPER_VERSION);
 	}
 	
+	static function init() {
+		if (!self::$postyper) self::$postyper = new Postyper();
+	}
+	
 	// TODO: replace this using get_declared_classes() and ReflectionClass::isSubclassOf()
-	function register_field_type($className) {
+	static function register_field_type($className) {
+		self::init();
+		self::$postyper->_register_field_type($className);
+	}
+	
+	function _register_field_type($className) {
 		$type = new $className();
 		$this->field_types[$type->type] = $type;
+	}
+	
+	static function field_types() {
+		self::init();
+		return self::$postyper->field_types;
 	}
 	
 	function register_saved_postypes() {

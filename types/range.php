@@ -1,6 +1,6 @@
 <?php
 
-postyper_register_field_type('PostypeRange');
+Postyper::register_field_type('PostypeRange');
 
 class PostypeRange extends PostypeField {
 	var $type = 'range';
