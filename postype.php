@@ -143,7 +143,7 @@ class Postype {
 		
 		wp_enqueue_script('jquery-ui');
 		
-		wp_register_style('postyper_meta', $dir.'css/jquery-ui.css', false, '0.2');
+		wp_register_style('postyper_meta', $dir.'css/jquery-ui.css', false, POSTYPER_VERSION);
 		wp_enqueue_style('postyper_meta');
 	}
 

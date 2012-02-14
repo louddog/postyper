@@ -108,10 +108,10 @@ class Postyper {
 	function includes() {
 		$dir = plugin_dir_url(__FILE__);
 		
-		wp_register_script('postyper_settings', $dir.'js/settings.js', array('jquery'), '0.2', true);
+		wp_register_script('postyper_settings', $dir.'js/settings.js', array('jquery'), POSTYPER_VERSION, true);
 		wp_enqueue_script('postyper_settings');
 		
-		wp_register_style('postyper_settings', $dir.'css/settings.css', false, '0.2');
+		wp_register_style('postyper_settings', $dir.'css/settings.css', false, POSTYPER_VERSION);
 		wp_enqueue_style('postyper_settings');
 	}
 
